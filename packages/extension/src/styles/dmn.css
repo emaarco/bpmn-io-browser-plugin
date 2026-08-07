@@ -1,0 +1,12 @@
+/*
+ * DMN-specific overrides for the inline viewer, layered after dmn-js' own CSS.
+ */
+
+/* dmn-js pins the DRD "definitions name / id" box to the canvas top-left
+   (position: absolute; top/left: 20px). In our compact inline view that hugs the
+   corner and clips under the host's sticky file header, so nudge it further into
+   view — kept, since it names the decision. */
+.dmn-definitions {
+  top: 44px;
+  left: 32px;
+}
