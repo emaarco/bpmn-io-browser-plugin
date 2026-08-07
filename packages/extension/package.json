@@ -1,6 +1,6 @@
 {
   "name": "@git-diagram-viewer/extension",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "BPMN viewer & diff browser extension (Chrome, Edge, Firefox) for GitLab & GitHub.",
   "type": "module",
