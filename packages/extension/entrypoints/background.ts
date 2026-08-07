@@ -12,9 +12,9 @@ export default defineBackground(() => {
     console.error('[git-diagram-viewer] host registration failed', err),
   )
 
-  // Right-click "Enable Git Diagram Viewer on this domain" on any page — the browser
+  // Right-click "Enable BPMN & DMN diagrams on this domain" on any page — the browser
   // handles the grant; we react to permissions.onAdded below. Cross-browser.
-  addPermissionToggle({ title: 'Enable Git Diagram Viewer on this domain' })
+  addPermissionToggle({ title: 'Enable BPMN & DMN diagrams on this domain' })
 
   // Left-click the toolbar icon on a supported page → one-click enable for that
   // origin; anywhere else it opens the options page. The icon stays clickable
