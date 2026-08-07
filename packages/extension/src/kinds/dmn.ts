@@ -36,7 +36,9 @@ export const dmnKind: DiagramKind = {
     return {
       fit: () => {
         const c = activeCanvas()
-        if (c) fitWithPadding(c)
+        // A touch more padding than the default: DRDs are sparse, so the extra
+        // air reads better than a diagram pushed to the container edges.
+        if (c) fitWithPadding(c, 64)
       },
       zoom: (factor) => {
         const c = activeCanvas()

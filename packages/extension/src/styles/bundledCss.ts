@@ -21,6 +21,7 @@ import dmnFontCss from 'dmn-js/dist/assets/dmn-font/css/dmn-embedded.css?inline'
 
 import viewerCss from './viewer.css?inline'
 import diffCss from './diff.css?inline'
+import dmnCss from './dmn.css?inline'
 
 const BPMN_ASSET_CSS = [diagramCss, bpmnCss, bpmnFontCss].join('\n')
 const DMN_ASSET_CSS = [
@@ -36,6 +37,6 @@ const DMN_ASSET_CSS = [
 /** Blob viewer + standalone: BPMN. */
 export const BPMN_SHADOW_CSS = [BPMN_ASSET_CSS, viewerCss].join('\n')
 /** Blob viewer + standalone: DMN (DRD + decision tables). */
-export const DMN_SHADOW_CSS = [DMN_ASSET_CSS, viewerCss].join('\n')
+export const DMN_SHADOW_CSS = [DMN_ASSET_CSS, viewerCss, dmnCss].join('\n')
 /** Merge-request diff view (BPMN markers) — reuses the viewer chrome + diff styles. */
 export const DIFF_SHADOW_CSS = [BPMN_ASSET_CSS, viewerCss, diffCss].join('\n')
