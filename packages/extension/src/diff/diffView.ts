@@ -4,13 +4,13 @@
  *
  *  - Plain — the current (head) model on its own, no markers. The default.
  *  - Diff  — two viewers side by side (before | after) with the semantic diff
- *            from @git-diagram-viewer/core marked up, plus prev/next/all navigation.
+ *            from @bpmn-io-browser-plugin/core marked up, plus prev/next/all navigation.
  *
  * Diagram colours follow the host's light/dark tokens. Ported from the "BPMN
  * Diff" userscript renderDiff/setupNav.
  */
 
-import { diffBpmn, type BpmnDiff } from '@git-diagram-viewer/core'
+import { diffBpmn, type BpmnDiff } from '@bpmn-io-browser-plugin/core'
 import { h } from '../dom'
 import { errorMessage } from '../util/errorMessage'
 import { createThemedViewer } from '../viewer/createThemedViewer'

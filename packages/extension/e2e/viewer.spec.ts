@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url'
  * loading the unpacked extension, and it still exercises the real bundled
  * bpmn-js / dmn-js render path.
  *
- * Build the extension first: `npm run build -w @git-diagram-viewer/extension`.
+ * Build the extension first: `npm run build -w @bpmn-io-browser-plugin/extension`.
  */
 
 const dir = dirname(fileURLToPath(import.meta.url))

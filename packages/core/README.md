@@ -1,4 +1,4 @@
-# `@git-diagram-viewer/core`
+# `@bpmn-io-browser-plugin/core`
 
 > The diff engine — framework-free BPMN parsing and a **semantic** diff.
 > No DOM, no bpmn-js viewer, no browser.
@@ -26,5 +26,5 @@ DOM and no viewer dependency, it runs and unit-tests in plain Node, and feeds
 
 ## Usage
 
-Consumed as a workspace dependency (`@git-diagram-viewer/core`); import the diff
+Consumed as a workspace dependency (`@bpmn-io-browser-plugin/core`); import the diff
 from `src/index.ts`. See the repo [README](../../README.md) for the full picture.

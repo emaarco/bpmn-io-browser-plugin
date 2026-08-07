@@ -19,19 +19,19 @@ import { getSavedHosts, type SelfHostedHost } from './storage'
 function scriptsFor(origin: string) {
   return [
     {
-      id: `git-diagram-viewer:${origin}:gitlab-blob`,
+      id: `bpmn-io-browser-plugin:${origin}:gitlab-blob`,
       matches: [`${origin}/*/-/blob/*`],
       js: ['content-scripts/gitlab-blob.js'],
       runAt: 'document_idle' as const,
     },
     {
-      id: `git-diagram-viewer:${origin}:gitlab-mr`,
+      id: `bpmn-io-browser-plugin:${origin}:gitlab-mr`,
       matches: [`${origin}/*/-/merge_requests/*`],
       js: ['content-scripts/gitlab-mr.js'],
       runAt: 'document_idle' as const,
     },
     {
-      id: `git-diagram-viewer:${origin}:github-blob`,
+      id: `bpmn-io-browser-plugin:${origin}:github-blob`,
       matches: [`${origin}/*/blob/*`],
       // GitLab blob URLs (`/group/repo/-/blob/…`) also match `*/blob/*`; exclude
       // every GitLab `/-/` route so this script only fires on real GitHub blobs.
@@ -40,7 +40,7 @@ function scriptsFor(origin: string) {
       runAt: 'document_idle' as const,
     },
     {
-      id: `git-diagram-viewer:${origin}:github-pr`,
+      id: `bpmn-io-browser-plugin:${origin}:github-pr`,
       matches: [`${origin}/*/pull/*`],
       js: ['content-scripts/github-pr.js'],
       runAt: 'document_idle' as const,
@@ -77,7 +77,7 @@ export async function registerSavedHosts(): Promise<void> {
     try {
       await registerHost(host)
     } catch (err) {
-      console.error(`[git-diagram-viewer] could not register ${host.origin}`, err)
+      console.error(`[bpmn-io-browser-plugin] could not register ${host.origin}`, err)
     }
   }
 }

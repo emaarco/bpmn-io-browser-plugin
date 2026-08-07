@@ -1,5 +1,5 @@
 {
-  "name": "@git-diagram-viewer/extension",
+  "name": "@bpmn-io-browser-plugin/extension",
   "version": "0.0.0",
   "private": true,
   "description": "BPMN viewer & diff browser extension (Chrome, Edge, Firefox) for GitLab & GitHub.",
@@ -22,7 +22,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@git-diagram-viewer/core": "*",
+    "@bpmn-io-browser-plugin/core": "*",
     "bpmn-js": "18.22.1",
     "dmn-js": "17.10.1",
     "webext-permission-toggle": "7.0.1"

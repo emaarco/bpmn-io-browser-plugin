@@ -45,7 +45,7 @@ jobs:
         run: npm run build
 
       - name: Validate Firefox bundle (web-ext lint)
-        run: npm run lint:webext -w @git-diagram-viewer/extension
+        run: npm run lint:webext -w @bpmn-io-browser-plugin/extension
 
   e2e:
     name: E2E
@@ -63,11 +63,11 @@ jobs:
         run: npm ci
 
       - name: Build extension
-        run: npm run build -w @git-diagram-viewer/extension
+        run: npm run build -w @bpmn-io-browser-plugin/extension
 
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
         working-directory: packages/extension
 
       - name: E2E tests
-        run: npm run test:e2e -w @git-diagram-viewer/extension
+        run: npm run test:e2e -w @bpmn-io-browser-plugin/extension

@@ -9,12 +9,12 @@ import { isSupportedUrl, originToPattern, patternToOrigin } from '../src/hosts/d
 export default defineBackground(() => {
   // Re-register content scripts for user-added self-hosted instances on startup.
   registerSavedHosts().catch((err) =>
-    console.error('[git-diagram-viewer] host registration failed', err),
+    console.error('[bpmn-io-browser-plugin] host registration failed', err),
   )
 
-  // Right-click "Enable BPMN & DMN diagrams on this domain" on any page — the browser
+  // Right-click "Enable bpmn-io-browser-plugin on this domain" on any page — the browser
   // handles the grant; we react to permissions.onAdded below. Cross-browser.
-  addPermissionToggle({ title: 'Enable BPMN & DMN diagrams on this domain' })
+  addPermissionToggle({ title: 'Enable bpmn-io-browser-plugin on this domain' })
 
   // Left-click the toolbar icon on a supported page → one-click enable for that
   // origin; anywhere else it opens the options page. The icon stays clickable
@@ -59,7 +59,7 @@ async function onGranted(patterns: string[]): Promise<void> {
     try {
       await registerHost(host)
     } catch (err) {
-      console.error('[git-diagram-viewer] register failed for', origin, err)
+      console.error('[bpmn-io-browser-plugin] register failed for', origin, err)
       continue
     }
     const tabs = await browser.tabs.query({ url: `${origin}/*` }).catch(() => [])

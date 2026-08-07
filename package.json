@@ -1,5 +1,5 @@
 {
-  "name": "git-diagram-viewer",
+  "name": "bpmn-io-browser-plugin",
   "version": "0.0.0",
   "private": true,
   "description": "Browser extension that renders and diffs BPMN files inline on GitLab & GitHub — plus a standalone .bpmn viewer.",
@@ -16,10 +16,10 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "dev": "npm run dev -w @git-diagram-viewer/extension",
-    "dev:example": "npm run dev:example -w @git-diagram-viewer/extension",
+    "dev": "npm run dev -w @bpmn-io-browser-plugin/extension",
+    "dev:example": "npm run dev:example -w @bpmn-io-browser-plugin/extension",
     "test": "npm run test --workspaces --if-present",
-    "test:e2e": "npm run test:e2e -w @git-diagram-viewer/extension --if-present",
+    "test:e2e": "npm run test:e2e -w @bpmn-io-browser-plugin/extension --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "eslint .",
     "lint:deps": "npm run lint:deps --workspaces --if-present",

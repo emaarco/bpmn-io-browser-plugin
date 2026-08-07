@@ -1,4 +1,4 @@
-# `@git-diagram-viewer/bot`
+# `@bpmn-io-browser-plugin/bot`
 
 > **Spike** — a server-side BPMN diff report for pull/merge requests, built on
 > [`core`](../core). Install-free, team-wide, mobile-friendly.
@@ -18,7 +18,7 @@ product yet.
 ## Try it
 
 ```bash
-npm run diff -w @git-diagram-viewer/bot -- <old.bpmn> <new.bpmn>
+npm run diff -w @bpmn-io-browser-plugin/bot -- <old.bpmn> <new.bpmn>
 ```
 
 ## What's inside

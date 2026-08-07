@@ -19,7 +19,7 @@ import { detectKind } from '../kinds/registry'
 import { mountModelPanel, type ModelPanelHandle } from '../viewer/modelPanel'
 import { injectShadowStyles } from './shadowStyles'
 
-const HOST_TAG = 'git-diagram-viewer'
+const HOST_TAG = 'bpmn-io-browser-plugin'
 const MOUNT_RETRIES = 12
 const RETRY_INTERVAL_MS = 500
 const RECHECK_DEBOUNCE_MS = 200
@@ -89,7 +89,7 @@ export function runBlobViewer(ctx: ContentScriptContext, platform: BlobPlatform)
       if (path !== location.pathname) teardown()
     } catch (err) {
       // Surface it — a silent failure here just looks like the extension is dead.
-      console.error('[git-diagram-viewer] could not mount the diagram viewer', err)
+      console.error('[bpmn-io-browser-plugin] could not mount the diagram viewer', err)
       teardown()
     } finally {
       mounting = false

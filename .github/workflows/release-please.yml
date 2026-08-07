@@ -54,7 +54,7 @@ jobs:
         run: npm ci
 
       - name: Build & zip (Chrome + Firefox)
-        run: npm run zip -w @git-diagram-viewer/extension
+        run: npm run zip -w @bpmn-io-browser-plugin/extension
 
       - name: Upload store bundles to the release
         env:

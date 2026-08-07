@@ -8,7 +8,7 @@
 
 import { readFile } from 'node:fs/promises'
 import { basename } from 'node:path'
-import { describeDiff, parseBpmn } from '@git-diagram-viewer/core'
+import { describeDiff, parseBpmn } from '@bpmn-io-browser-plugin/core'
 import { formatReport } from './formatReport'
 
 const [oldPath, newPath] = process.argv.slice(2)

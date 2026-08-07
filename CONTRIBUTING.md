@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve the BPMN & DMN for GitHub & GitLab extension!
+Thanks for helping improve the bpmn-io-browser-plugin extension!
 
 ## Getting started
 
@@ -13,7 +13,7 @@ This opens a browser with the extension pre-loaded and hot-reloads on every
 change. For Firefox:
 
 ```bash
-npm run dev -w @git-diagram-viewer/extension -- -b firefox
+npm run dev -w @bpmn-io-browser-plugin/extension -- -b firefox
 ```
 
 ## Repository layout
@@ -31,7 +31,7 @@ and feeds both the extension **and** the bot spike — same engine, two delivery
 paths. Try the bot:
 
 ```bash
-npm run diff -w @git-diagram-viewer/bot -- <old.bpmn> <new.bpmn>
+npm run diff -w @bpmn-io-browser-plugin/bot -- <old.bpmn> <new.bpmn>
 ```
 
 ## Development
@@ -44,21 +44,21 @@ npm run lint
 npm run lint:deps      # architecture guardrail (dependency-cruiser)
 
 # production build (both browsers) + zips
-npm run build -w @git-diagram-viewer/extension
-npm run zip   -w @git-diagram-viewer/extension
+npm run build -w @bpmn-io-browser-plugin/extension
+npm run zip   -w @bpmn-io-browser-plugin/extension
 ```
 
 ## Loading the extension unpacked
 
 You don't need the Chrome Web Store / AMO to run this — load the built extension
-directly. Build it once (`npm run build -w @git-diagram-viewer/extension`), which
+directly. Build it once (`npm run build -w @bpmn-io-browser-plugin/extension`), which
 produces two artifacts:
 
 - `packages/extension/.output/chrome-mv3` — for **all Chromium browsers**
 - `packages/extension/.output/firefox-mv3` — for **Firefox and its forks**
 
 > For active development, prefer `npm run dev` (Chromium) or
-> `npm run dev -w @git-diagram-viewer/extension -- -b firefox` — it hot-reloads
+> `npm run dev -w @bpmn-io-browser-plugin/extension -- -b firefox` — it hot-reloads
 > instead of requiring a rebuild + reload for each change.
 
 ### Chromium browsers (Chrome, Edge, Vivaldi, Brave, Opera, Arc, …)
@@ -88,14 +88,14 @@ on the extension card to pick up changes.
   submit the zip to [AMO](https://addons.mozilla.org) for signing, or use
   **Firefox Developer Edition / Nightly**, set `xpinstall.signatures.required` to
   `false` in `about:config`, then install the packaged zip from
-  `npm run zip -w @git-diagram-viewer/extension` (`.output/*.zip`).
+  `npm run zip -w @bpmn-io-browser-plugin/extension` (`.output/*.zip`).
 
 ### After installing
 
 `gitlab.com` and `github.com` work immediately. For a **self-hosted** GitLab EE /
 GitHub Enterprise instance, open a `.bpmn` file (or a merge request) there and
-click the extension's toolbar icon — or right-click the page → _Enable BPMN &
-DMN diagrams on this domain_ — to grant access to just that site. You can also
+click the extension's toolbar icon — or right-click the page → _Enable bpmn-io-browser-plugin on this
+domain_ — to grant access to just that site. You can also
 manage domains in the options page.
 
 ## Before you open a PR

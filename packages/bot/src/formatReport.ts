@@ -3,7 +3,7 @@
  * so it is unit-tested without touching the filesystem or a git host.
  */
 
-import type { DiffEntry, DiffKind, DiffReport } from '@git-diagram-viewer/core'
+import type { DiffEntry, DiffKind, DiffReport } from '@bpmn-io-browser-plugin/core'
 
 const ORDER: DiffKind[] = ['added', 'removed', 'changed', 'moved']
 const ICON: Record<DiffKind, string> = {
