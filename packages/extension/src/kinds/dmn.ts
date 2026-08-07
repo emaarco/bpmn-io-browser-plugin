@@ -1,5 +1,6 @@
 import DmnNavigatedViewer from 'dmn-js/lib/NavigatedViewer'
 import { DMN_SHADOW_CSS } from '../styles/bundledCss'
+import { resolveDiagramColors } from '../theme'
 import { fitWithPadding, type FitCanvas } from '../viewer/fitWithPadding'
 import type { DiagramKind, DiagramViewer } from './types'
 
@@ -8,9 +9,19 @@ export const dmnKind: DiagramKind = {
   label: 'DMN',
   css: DMN_SHADOW_CSS,
   async createViewer(canvas, xml): Promise<DiagramViewer> {
+    const { stroke, fill } = resolveDiagramColors(canvas)
     const viewer = new DmnNavigatedViewer({
       container: canvas,
-      drd: { zoomScroll: { enabled: false } },
+      drd: {
+        // Colour the DRD from the host's tokens — the DMN analog of bpmn-js'
+        // bpmnRenderer, so shapes/labels follow the page's light/dark theme.
+        drdRenderer: {
+          defaultFillColor: fill,
+          defaultStrokeColor: stroke,
+          defaultLabelColor: stroke,
+        },
+        zoomScroll: { enabled: false },
+      },
     })
     try {
       await viewer.importXML(xml)
