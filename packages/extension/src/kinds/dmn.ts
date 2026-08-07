@@ -8,7 +8,10 @@ export const dmnKind: DiagramKind = {
   label: 'DMN',
   css: DMN_SHADOW_CSS,
   async createViewer(canvas, xml): Promise<DiagramViewer> {
-    const viewer = new DmnNavigatedViewer({ container: canvas })
+    const viewer = new DmnNavigatedViewer({
+      container: canvas,
+      drd: { zoomScroll: { enabled: false } },
+    })
     try {
       await viewer.importXML(xml)
     } catch (err) {
@@ -16,9 +19,6 @@ export const dmnKind: DiagramKind = {
       throw err
     }
 
-    // A DMN file opens on its DRD, but the active view can change to a decision
-    // table (plain HTML, no canvas) — so resolve the zoomable canvas each call
-    // and no-op when the current view has none.
     const activeCanvas = (): FitCanvas | undefined => {
       try {
         return viewer.getActiveViewer()?.get<FitCanvas>('canvas')
