@@ -1,5 +1,6 @@
 import DmnNavigatedViewer from 'dmn-js/lib/NavigatedViewer'
 import { DMN_SHADOW_CSS } from '../styles/bundledCss'
+import { resolveDiagramColors } from '../theme'
 import { fitWithPadding, type FitCanvas } from '../viewer/fitWithPadding'
 import type { DiagramKind, DiagramViewer } from './types'
 
@@ -8,7 +9,18 @@ export const dmnKind: DiagramKind = {
   label: 'DMN',
   css: DMN_SHADOW_CSS,
   async createViewer(canvas, xml): Promise<DiagramViewer> {
-    const viewer = new DmnNavigatedViewer({ container: canvas })
+    const { stroke, fill } = resolveDiagramColors(canvas)
+    const viewer = new DmnNavigatedViewer({
+      container: canvas,
+      drd: {
+        drdRenderer: {
+          defaultFillColor: fill,
+          defaultStrokeColor: stroke,
+          defaultLabelColor: stroke,
+        },
+        zoomScroll: { enabled: false },
+      },
+    })
     try {
       await viewer.importXML(xml)
     } catch (err) {
@@ -16,9 +28,6 @@ export const dmnKind: DiagramKind = {
       throw err
     }
 
-    // A DMN file opens on its DRD, but the active view can change to a decision
-    // table (plain HTML, no canvas) — so resolve the zoomable canvas each call
-    // and no-op when the current view has none.
     const activeCanvas = (): FitCanvas | undefined => {
       try {
         return viewer.getActiveViewer()?.get<FitCanvas>('canvas')
@@ -36,7 +45,7 @@ export const dmnKind: DiagramKind = {
     return {
       fit: () => {
         const c = activeCanvas()
-        if (c) fitWithPadding(c)
+        if (c) fitWithPadding(c, 64)
       },
       zoom: (factor) => {
         const c = activeCanvas()

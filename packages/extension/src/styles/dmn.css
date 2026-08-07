@@ -1,0 +1,53 @@
+/*
+ * DMN-specific overrides for the inline viewer, layered after dmn-js' own CSS.
+ */
+
+/* The DRD "definitions name / id" box is an HTML overlay (not SVG), so the
+   drdRenderer colours don't reach it and dmn-js' hard-coded light palette makes
+   it look out of place in dark mode. Nudge it clear of the corner (dmn-js pins
+   it at top/left: 20px, where it clips under the host's file header) and theme
+   it from the host tokens the chrome already inherits. */
+.dmn-definitions {
+  top: 55px;
+  left: 25px;
+  background-color: var(--bg);
+  border-color: var(--border);
+  color: var(--fg);
+}
+
+.dmn-definitions .dmn-definitions-name,
+.dmn-definitions .dmn-definitions-id {
+  color: var(--fg);
+}
+
+/* Decision-table view: dmn-js renders it as an HTML table with a hard-coded
+   light palette (grey text/borders on white), so on a dark page it stays a white
+   block. It exposes every colour as a variable, so remap the greyscale ones to
+   the host tokens the chrome already inherits — this themes it for light *and*
+   dark alike. Accent colours (blue action icons) are left as dmn-js' own. */
+.dmn-decision-table-container {
+  --decision-table-color: var(--fg);
+  --decision-table-background-color: var(--bg);
+  --decision-table-properties-color: var(--fg);
+  --table-color: var(--fg);
+  --table-cell-color: var(--fg);
+  --table-cell-border-color: var(--border);
+  --table-head-border-color: var(--border);
+  --table-head-separator-color: var(--border);
+  --table-head-clause-color: var(--fg);
+  --table-head-variable-color: var(--fg);
+  --hit-policy-explanation-color: var(--fg);
+  --table-row-alternative-background-color: var(--btn-bg);
+  --view-drd-button-color: var(--fg);
+  --view-drd-button-background-color: var(--btn-bg);
+  --view-drd-button-border-color: var(--border);
+  --view-drd-button-hover-background-color: var(--btn-hover);
+  padding-left: 10px;
+}
+
+/* The "View DRD" back-button sits at the top of the decision-table view, where
+   the host's sticky Code/Blame header covers it — push it down to clear it (as
+   with the definitions box in the DRD view). */
+.dmn-decision-table-container .view-drd {
+  margin-top: 44px;
+}
