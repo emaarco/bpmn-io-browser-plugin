@@ -1,8 +1,11 @@
 import { defineConfig } from 'wxt'
 
-// `npm run dev:example` opens the browser straight at a real .bpmn file.
-const EXAMPLE_URL =
-  'https://github.com/Miragon/bpmn-to-code/blob/main/shared/bpmn/c7-additional-variables.bpmn'
+// `npm run dev:example` opens the browser at a real .bpmn and .dmn file (one tab
+// each) so both viewers can be checked at once.
+const EXAMPLE_URLS = [
+  'https://github.com/Miragon/bpmn-to-code/blob/main/shared/bpmn/c7-additional-variables.bpmn',
+  'https://github.com/emaarco/dmn-js-simulation/blob/main/packages/example/public/recommend-bike.dmn',
+]
 const openExample = Boolean(
   (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
     ?.WXT_DEV_EXAMPLE,
@@ -35,7 +38,7 @@ export default defineConfig({
     ],
   }),
   webExt: {
-    startUrls: openExample ? [EXAMPLE_URL] : undefined,
+    startUrls: openExample ? EXAMPLE_URLS : undefined,
   },
   manifest: {
     // Kept ≤ 45 characters — the store limit (enforced by `web-ext lint`). The
