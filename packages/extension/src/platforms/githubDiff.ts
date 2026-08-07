@@ -1,12 +1,21 @@
 /**
  * GitHub pull-request {@link DiffPlatform}: finds changed `.bpmn` file boxes on
  * the Files tab and wires each to base/head raw URLs, using PR metadata (SHAs,
- * per-file status) loaded once from the GitHub REST API.
+ * per-file status) loaded once from the GitHub REST API. Handles both the legacy
+ * diff and the React "Files changed" experience; see {@link fileRoots}.
  */
 
 import type { DiffFileBlock, DiffPlatform } from '../diff/diffPlatform'
 import { fetchText } from '../net/client'
-import { isBpmnPath, loadPrData, prInfo, rawFileUrl, type PrData, type PrInfo } from './githubPr'
+import {
+  isBpmnPath,
+  loadPrData,
+  normalizeDiffPath,
+  prInfo,
+  rawFileUrl,
+  type PrData,
+  type PrInfo,
+} from './githubPr'
 
 interface FileBox {
   path: string
@@ -59,24 +68,51 @@ function toBlock(location: Location, box: FileBox, data: PrData): DiffFileBlock 
 }
 
 function bpmnFileBoxes(doc: Document): FileBox[] {
-  const roots = doc.querySelectorAll<HTMLElement>('.file[data-tagsearch-path], .js-file')
   const boxes: FileBox[] = []
-  roots.forEach((root) => {
+  const seen = new Set<HTMLElement>()
+  for (const root of fileRoots(doc)) {
+    if (seen.has(root)) continue
+    seen.add(root)
     const path = filePathOf(root)
-    if (!isBpmnPath(path)) return
+    if (!isBpmnPath(path)) continue
     const code = codeOf(root)
     if (code) boxes.push({ path: path!, code })
-  })
+  }
   return boxes
+}
+
+/**
+ * Per-file diff containers for both the legacy diff and the React "Files changed"
+ * experience. The React class names are hashed, so we key on the stable
+ * `data-diff-header-wrapper` hook and climb to the owning `#diff-<hash>`.
+ */
+function fileRoots(doc: Document): HTMLElement[] {
+  const legacy = [...doc.querySelectorAll<HTMLElement>('.file[data-tagsearch-path], .js-file')]
+  const modern = [...doc.querySelectorAll<HTMLElement>('[data-diff-header-wrapper]')]
+    .map((header) => header.closest<HTMLElement>('div[id^="diff-"]'))
+    .filter((el): el is HTMLElement => el !== null)
+  return [...legacy, ...modern]
 }
 
 function filePathOf(root: HTMLElement): string | null {
   const attr = root.getAttribute('data-tagsearch-path') || root.getAttribute('data-path')
   if (attr) return attr
+  const modern = modernFilePath(root)
+  if (modern) return modern
   const info = root.querySelector('.file-info a, .file-header [title]')
   return info?.getAttribute('title') || info?.textContent?.trim() || null
 }
 
+/** React experience: the container's `aria-labelledby` heading holds the path. */
+function modernFilePath(root: HTMLElement): string | null {
+  const headingId = root.getAttribute('aria-labelledby')
+  const heading = headingId ? root.ownerDocument.getElementById(headingId) : null
+  const raw = heading?.textContent ?? root.querySelector('[data-diff-header-wrapper] h3')?.textContent
+  return raw ? normalizeDiffPath(raw) || null : null
+}
+
 function codeOf(root: HTMLElement): HTMLElement | null {
+  const modern = root.querySelector<HTMLElement>('table[data-diff-anchor]')
+  if (modern) return modern.parentElement ?? modern
   return root.querySelector<HTMLElement>('.js-file-content, .data.highlight, .diff-table')
 }

@@ -40,3 +40,13 @@ export function rawFileUrl(
 export function isBpmnPath(path: string | undefined | null): boolean {
   return !!path && /\.bpmn$/i.test(path)
 }
+
+/**
+ * Clean a path read from the React diff header: strip the invisible bidi marks
+ * GitHub wraps it in (they break equality against the REST API path), and for a
+ * renamed `old → new` header keep the head-side path.
+ */
+export function normalizeDiffPath(text: string): string {
+  const clean = text.replace(/[\u200e\u200f\u202a-\u202e\u2066-\u2069]/gu, '').trim()
+  return (clean.split('→').pop() ?? clean).trim()
+}
