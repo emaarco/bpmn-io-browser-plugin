@@ -22,8 +22,8 @@ This is an npm-workspaces monorepo:
 
 | Package              | What it is                                                                              |
 | -------------------- | --------------------------------------------------------------------------------------- |
-| `packages/core`      | Framework-free BPMN parsing (bpmn-moddle) + the semantic diff. No DOM.                   |
-| `packages/extension` | The [WXT](https://wxt.dev) extension: content scripts, options, background.              |
+| `packages/core`      | Framework-free BPMN parsing (bpmn-moddle) + the semantic diff. No DOM.                  |
+| `packages/extension` | The [WXT](https://wxt.dev) extension: content scripts, options, background.             |
 | `packages/bot`       | Spike: a server-side diff report (PR/MR bot) built on `core` — install-free, team-wide. |
 
 The diff is deliberately isolated in `core` so it is unit-tested in plain Node
