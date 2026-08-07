@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest'
 import { gitlabPlatform } from '../src/platforms/gitlab'
 import { githubPlatform } from '../src/platforms/github'
 import { isBpmnPath, mrInfo, rawFileUrl } from '../src/platforms/gitlabMrUrls'
-import { apiBase, prInfo, rawFileUrl as prRawFileUrl } from '../src/platforms/githubPrUrls'
+import {
+  apiBase,
+  normalizeDiffPath,
+  prInfo,
+  rawFileUrl as prRawFileUrl,
+} from '../src/platforms/githubPrUrls'
 
 function loc(pathname: string, origin = 'https://gitlab.com', search = ''): Location {
   return { pathname, origin, search, hostname: new URL(origin).hostname } as Location
@@ -80,5 +85,19 @@ describe('github pull-request urls', () => {
     expect(
       prRawFileUrl(loc('/o/r/pull/1', 'https://github.com'), 'o/r', 'abc123', 'a/b c.bpmn'),
     ).toBe('https://github.com/o/r/raw/abc123/a/b%20c.bpmn')
+  })
+})
+
+describe('normalizeDiffPath (React "Files changed" diff header)', () => {
+  it('strips the bidi/isolation marks GitHub wraps around the path', () => {
+    expect(normalizeDiffPath('\u200esrc/\u2066flows\u2069/order.bpmn')).toBe('src/flows/order.bpmn')
+  })
+
+  it('keeps the head-side path for a renamed file', () => {
+    expect(normalizeDiffPath('src/old-name.bpmn → src/new-name.bpmn')).toBe('src/new-name.bpmn')
+  })
+
+  it('leaves a plain path untouched', () => {
+    expect(normalizeDiffPath('  a/b/order.bpmn  ')).toBe('a/b/order.bpmn')
   })
 })

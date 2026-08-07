@@ -10,7 +10,7 @@
 import { fetchJson } from '../net/client'
 import { apiBase, type PrInfo } from './githubPrUrls'
 
-export { isBpmnPath, prInfo, rawFileUrl, type PrInfo } from './githubPrUrls'
+export { isBpmnPath, normalizeDiffPath, prInfo, rawFileUrl, type PrInfo } from './githubPrUrls'
 
 export interface PrFile {
   filename: string
