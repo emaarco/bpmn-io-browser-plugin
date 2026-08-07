@@ -1,5 +1,5 @@
 /**
- * Public entry point for `@git-diagram-viewer/core`: framework-free BPMN parsing and the
+ * Public entry point for `@bpmn-io-browser-plugin/core`: framework-free BPMN parsing and the
  * four-category semantic diff. No bpmn-js, no DOM — safe to run in Node or a
  * browser-extension background worker alike.
  */

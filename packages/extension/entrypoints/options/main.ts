@@ -32,7 +32,7 @@ app.append(
   h('h1', { text: 'Self-hosted instances' }),
   h('p', {
     class: 'intro',
-    text: 'gitlab.com and github.com work out of the box. For a self-hosted GitLab or GitHub Enterprise instance, the quickest way is to open a .bpmn file (or a merge request) there and click the extension icon — or right-click the page and choose "Enable BPMN & DMN diagrams on this domain". You can also add a domain manually below.',
+    text: 'gitlab.com and github.com work out of the box. For a self-hosted GitLab or GitHub Enterprise instance, the quickest way is to open a .bpmn file (or a merge request) there and click the extension icon — or right-click the page and choose "Enable bpmn-io-browser-plugin on this domain". You can also add a domain manually below.',
   }),
   h('div', { class: 'card' }, [
     h('div', { class: 'row' }, [originInput, typeSelect, addButton]),

@@ -1,4 +1,4 @@
-# `@git-diagram-viewer/extension`
+# `@bpmn-io-browser-plugin/extension`
 
 > The browser extension (Chrome, Edge, Firefox) — renders **BPMN & DMN inline**
 > on GitLab & GitHub and shows a **before/after diff** in pull/merge requests.

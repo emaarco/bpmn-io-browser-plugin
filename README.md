@@ -1,4 +1,4 @@
-# BPMN & DMN for GitHub & GitLab
+# bpmn-io-browser-plugin
 
 [![CI](https://github.com/emaarco/bpmn-io-browser-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/emaarco/bpmn-io-browser-plugin/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/emaarco/bpmn-io-browser-plugin)](./LICENSE)
@@ -41,7 +41,7 @@ Not on the stores yet — build it once and load it as an unpacked extension:
 
 ```bash
 npm install
-npm run build -w @git-diagram-viewer/extension
+npm run build -w @bpmn-io-browser-plugin/extension
 ```
 
 Then load the output for your browser:

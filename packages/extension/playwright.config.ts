@@ -4,7 +4,7 @@ import { defineConfig } from '@playwright/test'
  * E2E serves the built standalone page from .output/chrome-mv3 over HTTP (the
  * spec spins up a tiny static server) and drives it in headless Chromium — no
  * unpacked extension, no headed context. Build the extension first:
- * `npm run build -w @git-diagram-viewer/extension`.
+ * `npm run build -w @bpmn-io-browser-plugin/extension`.
  */
 export default defineConfig({
   testDir: './e2e',

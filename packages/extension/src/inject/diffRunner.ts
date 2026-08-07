@@ -25,7 +25,7 @@ export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void
     try {
       blocks = await platform.collect(location, document)
     } catch (err) {
-      console.error('[git-diagram-viewer] failed to load diff data', err)
+      console.error('[bpmn-io-browser-plugin] failed to load diff data', err)
       return
     }
     for (const block of blocks) {

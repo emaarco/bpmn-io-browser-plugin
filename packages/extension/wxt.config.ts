@@ -24,7 +24,7 @@ export default defineConfig({
   vite: () => ({
     plugins: [
       {
-        name: 'gdv-escape-noncharacters',
+        name: 'bpmn-io-escape-noncharacters',
         generateBundle(_options: unknown, bundle: Record<string, { type: string; code?: string }>) {
           for (const file of Object.values(bundle)) {
             if (file.type === 'chunk' && file.code) {
@@ -42,7 +42,7 @@ export default defineConfig({
     startUrls: openExample ? EXAMPLE_URLS : undefined,
   },
   manifest: {
-    name: 'BPMN & DMN for GitHub & GitLab',
+    name: 'bpmn-io-browser-plugin',
     description:
       'Render BPMN & DMN diagrams inline on GitLab & GitHub and show a visual before/after diff in merge/pull requests. Includes a standalone diagram viewer.',
     permissions: ['scripting', 'storage', 'contextMenus', 'activeTab'],
@@ -62,7 +62,7 @@ export default defineConfig({
     ],
     optional_host_permissions: ['*://*/*'],
     browser_specific_settings: {
-      gecko: { id: 'git-diagram-viewer@emaarco.github.io' },
+      gecko: { id: 'bpmn-io-browser-plugin@emaarco.github.io' },
     },
   },
 })

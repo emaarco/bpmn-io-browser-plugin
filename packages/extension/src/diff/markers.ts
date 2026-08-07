@@ -4,7 +4,7 @@
  * on the old (left) viewer. Ported from the "BPMN Diff" userscript.
  */
 
-import type { BpmnDiff } from '@git-diagram-viewer/core'
+import type { BpmnDiff } from '@bpmn-io-browser-plugin/core'
 
 export const MARKER = {
   added: 'git-diagram-di-added',

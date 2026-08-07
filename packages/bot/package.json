@@ -1,8 +1,8 @@
 {
-  "name": "@git-diagram-viewer/bot",
+  "name": "@bpmn-io-browser-plugin/bot",
   "version": "0.0.0",
   "private": true,
-  "description": "Spike: server-side BPMN diff report (PR/MR bot) built on @git-diagram-viewer/core — install-free, team-wide, mobile-friendly.",
+  "description": "Spike: server-side BPMN diff report (PR/MR bot) built on @bpmn-io-browser-plugin/core — install-free, team-wide, mobile-friendly.",
   "type": "module",
   "license": "MIT",
   "author": "Marco Schäck (https://github.com/emaarco)",
@@ -18,7 +18,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@git-diagram-viewer/core": "*"
+    "@bpmn-io-browser-plugin/core": "*"
   },
   "devDependencies": {
     "@types/node": "26.1.2",

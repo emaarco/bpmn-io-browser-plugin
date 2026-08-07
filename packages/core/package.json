@@ -1,5 +1,5 @@
 {
-  "name": "@git-diagram-viewer/core",
+  "name": "@bpmn-io-browser-plugin/core",
   "version": "0.0.0",
   "private": true,
   "description": "Framework-free BPMN parsing & semantic diff core (no DOM, no bpmn-js viewer).",
