@@ -168,3 +168,59 @@
 .djs-connection.git-diagram-di-moved .djs-visual > :nth-child(1) {
   stroke: #bf8700 !important;
 }
+
+/* Dark theme: the light pastel fills above would hide the now-light diagram
+   labels. Use a translucent tint over the dark shape + a bright accent stroke so
+   both the change colour and the label stay legible. */
+.git-diagram-wrap[data-theme='dark'] .djs-element.git-diagram-di-added .djs-visual > :nth-child(1) {
+  stroke: #3fb950 !important;
+  fill: rgba(63, 185, 80, 0.25) !important;
+}
+
+.git-diagram-wrap[data-theme='dark']
+  .djs-element.git-diagram-di-removed
+  .djs-visual
+  > :nth-child(1) {
+  stroke: #f85149 !important;
+  fill: rgba(248, 81, 73, 0.25) !important;
+}
+
+.git-diagram-wrap[data-theme='dark']
+  .djs-element.git-diagram-di-changed
+  .djs-visual
+  > :nth-child(1) {
+  stroke: #58a6ff !important;
+  fill: rgba(56, 139, 253, 0.25) !important;
+}
+
+.git-diagram-wrap[data-theme='dark'] .djs-element.git-diagram-di-moved .djs-visual > :nth-child(1) {
+  stroke: #d29922 !important;
+}
+
+.git-diagram-wrap[data-theme='dark']
+  .djs-connection.git-diagram-di-added
+  .djs-visual
+  > :nth-child(1) {
+  stroke: #3fb950 !important;
+}
+
+.git-diagram-wrap[data-theme='dark']
+  .djs-connection.git-diagram-di-removed
+  .djs-visual
+  > :nth-child(1) {
+  stroke: #f85149 !important;
+}
+
+.git-diagram-wrap[data-theme='dark']
+  .djs-connection.git-diagram-di-changed
+  .djs-visual
+  > :nth-child(1) {
+  stroke: #58a6ff !important;
+}
+
+.git-diagram-wrap[data-theme='dark']
+  .djs-connection.git-diagram-di-moved
+  .djs-visual
+  > :nth-child(1) {
+  stroke: #d29922 !important;
+}

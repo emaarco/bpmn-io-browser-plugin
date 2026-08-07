@@ -14,6 +14,7 @@ import { diffBpmn, type BpmnDiff } from '@bpmn-io-browser-plugin/core'
 import { h } from '../dom'
 import { errorMessage } from '../util/errorMessage'
 import { createThemedViewer } from '../viewer/createThemedViewer'
+import { detectHostTheme } from '../theme'
 import { fitWithPadding } from '../viewer/fitWithPadding'
 import { applyMarkers, changedIds, MARKER } from './markers'
 
@@ -89,6 +90,8 @@ export function mountDiffView(container: HTMLElement, options: DiffViewOptions):
   const diagramArea = h('div', { class: 'git-diagram-di-area' }, [grid, plainView])
   const root = h('div', { class: 'git-diagram-wrap git-diagram-di-root' }, [toolbar, diagramArea])
   container.append(root)
+  // Theme the chrome/labels/markers to match the host page (read once it's in the DOM).
+  root.dataset.theme = detectHostTheme(root)
 
   let oldViewer: Viewer | null = null
   let newViewer: Viewer | null = null
