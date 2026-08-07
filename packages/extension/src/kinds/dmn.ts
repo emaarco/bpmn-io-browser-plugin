@@ -13,8 +13,6 @@ export const dmnKind: DiagramKind = {
     const viewer = new DmnNavigatedViewer({
       container: canvas,
       drd: {
-        // Colour the DRD from the host's tokens — the DMN analog of bpmn-js'
-        // bpmnRenderer, so shapes/labels follow the page's light/dark theme.
         drdRenderer: {
           defaultFillColor: fill,
           defaultStrokeColor: stroke,
@@ -47,8 +45,6 @@ export const dmnKind: DiagramKind = {
     return {
       fit: () => {
         const c = activeCanvas()
-        // A touch more padding than the default: DRDs are sparse, so the extra
-        // air reads better than a diagram pushed to the container edges.
         if (c) fitWithPadding(c, 64)
       },
       zoom: (factor) => {
