@@ -12,6 +12,7 @@
 
 import { h } from '../dom'
 import { errorMessage } from '../util/errorMessage'
+import { detectHostTheme } from '../theme'
 import type { DiagramKind, DiagramViewer } from '../kinds/types'
 
 export interface ModelPanelHandle {
@@ -57,6 +58,8 @@ export function mountModelPanel(
 
   const wrap = h('div', { class: 'git-diagram-wrap' }, [canvas, controls])
   container.append(wrap)
+  // Theme the chrome/labels to match the host page (read once it's in the DOM).
+  wrap.dataset.theme = detectHostTheme(wrap)
 
   let viewer: DiagramViewer | null = null
   let destroyed = false
