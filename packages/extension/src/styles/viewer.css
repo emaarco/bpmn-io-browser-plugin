@@ -7,6 +7,15 @@
  * cross the shadow boundary. Hard-coded values are only fallbacks.
  */
 
+/* Collapse the whole panel when the host marks the file collapsed/viewed.
+   Defined here (inside the shadow tree) with higher specificity than WXT's
+   `:host{all:initial !important}` reset, so it wins — an inline style on the
+   host from outside cannot, since the reset's important beats it. The attribute
+   is toggled from diffRunner's mirrorCollapse. */
+:host([data-collapsed]) {
+  display: none !important;
+}
+
 .git-diagram-wrap {
   --fg: var(--fgColor-default, var(--color-fg-default, #1f2328));
   --bg: var(--bgColor-default, var(--color-canvas-default, #ffffff));
