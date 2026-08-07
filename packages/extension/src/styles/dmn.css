@@ -2,11 +2,20 @@
  * DMN-specific overrides for the inline viewer, layered after dmn-js' own CSS.
  */
 
-/* dmn-js pins the DRD "definitions name / id" box to the canvas top-left
-   (position: absolute; top/left: 20px). In our compact inline view that hugs the
-   corner and clips under the host's sticky file header, so nudge it further into
-   view — kept, since it names the decision. */
+/* The DRD "definitions name / id" box is an HTML overlay (not SVG), so the
+   drdRenderer colours don't reach it and dmn-js' hard-coded light palette makes
+   it look out of place in dark mode. Nudge it clear of the corner (dmn-js pins
+   it at top/left: 20px, where it clips under the host's file header) and theme
+   it from the host tokens the chrome already inherits. */
 .dmn-definitions {
   top: 44px;
   left: 32px;
+  background-color: var(--bg);
+  border-color: var(--border);
+  color: var(--fg);
+}
+
+.dmn-definitions .dmn-definitions-name,
+.dmn-definitions .dmn-definitions-id {
+  color: var(--fg);
 }
