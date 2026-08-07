@@ -1,0 +1,21 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+.output/
+.wxt/
+*.zip
+
+# test artifacts
+coverage/
+packages/*/playwright-report/
+packages/*/test-results/
+
+# editor / os
+.DS_Store
+.idea/
+.vscode/
+
+# claude
+.claude/logs/

@@ -1,0 +1,170 @@
+/*
+ * Styles for the injected merge-request diff. Scoped to the shadow root. Bundled
+ * together with viewer.css, so it inherits the design tokens (--fg, --bg,
+ * --border, --btn-bg, --btn-hover, --canvas-bg) and the shared toolbar/tab/button
+ * components defined there. Only diff-specific layout + marker colours live here.
+ */
+
+/* Reuse the viewer wrap (tokens + font) but drop its sticky-header top offset —
+   inside an MR file box there is no floating header to clear. */
+.git-diagram-wrap.git-diagram-di-root {
+  margin: 0 0 12px;
+}
+
+.git-diagram-di-grid {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.git-diagram-di-pane {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 520px;
+  border-right: 1px dashed var(--border);
+}
+
+.git-diagram-di-pane:last-child,
+.git-diagram-di-single {
+  border-right: none;
+}
+
+.git-diagram-di-canvas {
+  position: absolute;
+  inset: 0;
+  background: var(--canvas-bg);
+}
+
+/* Keep diagram labels in the host's text colour (light or dark). */
+.git-diagram-di-canvas .djs-label,
+.git-diagram-di-canvas text {
+  fill: var(--fg) !important;
+}
+
+.git-diagram-di-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg);
+  opacity: 0.6;
+}
+
+.git-diagram-di-overlay {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  background: var(--btn-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+.git-diagram-di-legend {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 6px;
+  color: var(--fg);
+}
+
+.git-diagram-di-legend .k::before {
+  content: '';
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: -1px;
+  border: 1px solid;
+}
+
+.git-diagram-di-legend .k-add::before {
+  background: #b6f0c8;
+  border-color: #22a06b;
+}
+
+.git-diagram-di-legend .k-rem::before {
+  background: #ffc9c9;
+  border-color: #d1242f;
+}
+
+.git-diagram-di-legend .k-chg::before {
+  background: #b6e3ff;
+  border-color: #0969da;
+}
+
+.git-diagram-di-legend .k-mov::before {
+  background: #ffe1a6;
+  border-color: #bf8700;
+}
+
+.git-diagram-di-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.git-diagram-di-navbtn {
+  cursor: pointer;
+  font-size: 12px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--btn-bg);
+  color: var(--fg);
+}
+
+.git-diagram-di-navbtn:hover {
+  background: var(--btn-hover);
+}
+
+.git-diagram-di-navbtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Element markers */
+.djs-element.git-diagram-di-added .djs-visual > :nth-child(1) {
+  stroke: #22a06b !important;
+  fill: #e6ffed !important;
+}
+
+.djs-element.git-diagram-di-removed .djs-visual > :nth-child(1) {
+  stroke: #d1242f !important;
+  fill: #ffebe9 !important;
+}
+
+.djs-element.git-diagram-di-changed .djs-visual > :nth-child(1) {
+  stroke: #0969da !important;
+  fill: #ddf4ff !important;
+}
+
+.djs-element.git-diagram-di-moved .djs-visual > :nth-child(1) {
+  stroke: #bf8700 !important;
+}
+
+.djs-element.git-diagram-di-active {
+  filter: drop-shadow(0 0 6px #ff9800);
+}
+
+/* Connections (sequence flows) have no fill — colour the stroke only */
+.djs-connection.git-diagram-di-added .djs-visual > :nth-child(1) {
+  stroke: #22a06b !important;
+}
+
+.djs-connection.git-diagram-di-removed .djs-visual > :nth-child(1) {
+  stroke: #d1242f !important;
+}
+
+.djs-connection.git-diagram-di-changed .djs-visual > :nth-child(1) {
+  stroke: #0969da !important;
+}
+
+.djs-connection.git-diagram-di-moved .djs-visual > :nth-child(1) {
+  stroke: #bf8700 !important;
+}

@@ -1,0 +1,140 @@
+/*
+ * Styles for the injected viewer. Scoped to the shadow root, so plain class
+ * names are safe — no bleed to/from the host page. Kept deliberately light so it
+ * blends into the host's file view rather than looking like a separate dialog.
+ * Colours inherit the host's design tokens (Primer on GitHub, GitLab tokens) so
+ * the panel follows the host's exact light/dark palette — custom properties
+ * cross the shadow boundary. Hard-coded values are only fallbacks.
+ */
+
+.git-diagram-wrap {
+  --fg: var(--fgColor-default, var(--color-fg-default, var(--gl-text-color, #1f2328)));
+  --bg: var(--bgColor-default, var(--color-canvas-default, var(--gl-background-color, #ffffff)));
+  --border: var(
+    --borderColor-default,
+    var(--color-border-default, var(--gl-border-color-default, #d0d7de))
+  );
+  --btn-bg: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
+  --btn-hover: var(--bgColor-emphasis, var(--color-neutral-muted, rgba(129, 139, 152, 0.12)));
+  --tab-active: var(--fgColor-accent, var(--color-accent-fg, var(--gl-color-blue-500, #0969da)));
+  --canvas-bg: var(
+    --bgColor-default,
+    var(--color-canvas-default, var(--gl-background-color, #ffffff))
+  );
+
+  /* Additive: our container sits in the normal flow above the code, so it just
+     needs a little breathing room from the file header and the code below. */
+  position: relative;
+  margin: 12px 0;
+  color: var(--fg);
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+.git-diagram-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+}
+
+/* Model / Code segmented switch */
+.git-diagram-tabs {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.git-diagram-tab {
+  cursor: pointer;
+  border: none;
+  background: var(--btn-bg);
+  color: var(--fg);
+  font-size: 13px;
+  line-height: 1;
+  padding: 6px 12px;
+}
+
+.git-diagram-tab + .git-diagram-tab {
+  border-left: 1px solid var(--border);
+}
+
+.git-diagram-tab:hover {
+  background: var(--btn-hover);
+}
+
+.git-diagram-tab.is-active {
+  background: var(--tab-active);
+  color: #ffffff;
+}
+
+/* Floating overlay in the canvas' bottom-left corner — never covered by the
+   host's sticky file header, and clear of the bpmn.io / dmn.io watermark that
+   the viewer libraries render in the bottom-right. */
+.git-diagram-controls {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 5;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--btn-bg);
+}
+
+.git-diagram-btn {
+  cursor: pointer;
+  min-width: 30px;
+  height: 28px;
+  line-height: 1;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--btn-bg);
+  color: var(--fg);
+  padding: 0 8px;
+}
+
+.git-diagram-btn:hover {
+  background: var(--btn-hover);
+}
+
+.git-diagram-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.git-diagram-canvas {
+  position: relative;
+  /* Static height; the diagram is fit into it. bpmn-js/dmn-js zoom-to-fit
+     handles large models, drag-to-pan + the zoom controls handle the rest. */
+  height: 600px;
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--canvas-bg);
+  overflow: hidden;
+}
+
+.git-diagram-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg);
+  opacity: 0.7;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* In dark mode, keep diagram labels legible (bpmn-js draws them dark). */
+/* Keep diagram labels in the host's text colour (light or dark). */
+.git-diagram-canvas .djs-label,
+.git-diagram-canvas text {
+  fill: var(--fg) !important;
+}

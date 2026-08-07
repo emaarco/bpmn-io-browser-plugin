@@ -1,0 +1,9 @@
+# Forces a template so every issue carries the fields we need to act on it.
+blank_issues_enabled: false
+contact_links:
+  - name: Question / Discussion
+    url: https://github.com/emaarco/bpmn-io-browser-plugin/discussions
+    about: Ask questions and discuss ideas here.
+  - name: Security Vulnerability
+    url: https://github.com/emaarco/bpmn-io-browser-plugin/security/advisories/new
+    about: Report vulnerabilities privately — never in a public issue.
