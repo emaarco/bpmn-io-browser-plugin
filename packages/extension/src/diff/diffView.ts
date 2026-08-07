@@ -95,6 +95,7 @@ export function mountDiffView(container: HTMLElement, options: DiffViewOptions):
   let plainRendered = false
   let modelView: ModelView = 'plain'
   let destroyed = false
+  let resizeObserver: ResizeObserver | null = null
 
   const visibleViewers = (): (Viewer | null)[] =>
     modelView === 'diff' ? [oldViewer, newViewer] : [plainViewer]
@@ -127,6 +128,10 @@ export function mountDiffView(container: HTMLElement, options: DiffViewOptions):
     applyModelView()
   })
   applyModelView()
+
+  // Re-fit when the panel resizes (window/sidebar) to keep diagrams centred.
+  resizeObserver = new ResizeObserver(() => fitVisible())
+  resizeObserver.observe(diagramArea)
 
   const zoom = (factor: number) => {
     for (const viewer of visibleViewers()) {
@@ -194,6 +199,8 @@ export function mountDiffView(container: HTMLElement, options: DiffViewOptions):
   return {
     destroy() {
       destroyed = true
+      resizeObserver?.disconnect()
+      resizeObserver = null
       teardown()
       root.remove()
     },
