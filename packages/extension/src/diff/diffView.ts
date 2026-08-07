@@ -26,6 +26,9 @@ export interface DiffViewOptions {
 
 export interface DiffViewHandle {
   destroy(): void
+  /** Re-centre the currently-visible viewers (used after the host un-collapses
+   *  the file, since a panel mounted while collapsed had no size to fit to). */
+  refit(): void
 }
 
 type Viewer = any
@@ -196,6 +199,9 @@ export function mountDiffView(container: HTMLElement, options: DiffViewOptions):
       destroyed = true
       teardown()
       root.remove()
+    },
+    refit() {
+      fitVisible()
     },
   }
 }

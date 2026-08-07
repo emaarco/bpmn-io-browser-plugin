@@ -14,6 +14,7 @@ import { mountDiffView, type DiffViewHandle } from '../diff/diffView'
 import type { DiffFileBlock, DiffPlatform } from '../diff/diffPlatform'
 
 const DEBOUNCE_MS = 300
+const COLLAPSE_DEBOUNCE_MS = 150
 
 export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void {
   const mounted = new WeakSet<Element>()
@@ -48,6 +49,42 @@ export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void
     })
     ui.mount()
     ctx.onInvalidated(() => ui.remove())
+    mirrorCollapse(ui, block)
+  }
+
+  /**
+   * Hide the injected panel whenever the host collapses the file (e.g. "marked as
+   * viewed"), and re-fit the diagram when it is expanded again. Mirrors the host's
+   * own diff-body visibility rather than matching version-specific collapse markup.
+   */
+  function mirrorCollapse(
+    ui: { shadowHost: HTMLElement; mounted?: DiffViewHandle },
+    block: DiffFileBlock,
+  ): void {
+    let wasHidden = false
+    const sync = () => {
+      const collapsed = block.isCollapsed()
+      ui.shadowHost.style.display = collapsed ? 'none' : ''
+      if (!collapsed && wasHidden) ui.mounted?.refit()
+      wasHidden = collapsed
+    }
+
+    let collapseScheduled = false
+    const scheduleSync = () => {
+      if (collapseScheduled) return
+      collapseScheduled = true
+      setTimeout(() => {
+        collapseScheduled = false
+        sync()
+      }, COLLAPSE_DEBOUNCE_MS)
+    }
+
+    const observer = new MutationObserver(scheduleSync)
+    observer.observe(block.fileRoot, { attributes: true, childList: true, subtree: true })
+    ctx.onInvalidated(() => observer.disconnect())
+
+    // Handle files that load already collapsed (GitLab starts viewed files collapsed).
+    sync()
   }
 
   let scheduled = false

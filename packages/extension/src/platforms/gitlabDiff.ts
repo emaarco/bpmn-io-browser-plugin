@@ -6,11 +6,13 @@
 
 import type { DiffFileBlock, DiffPlatform } from '../diff/diffPlatform'
 import { fetchText } from '../net/client'
+import { isRendered } from '../util/isRendered'
 import { isBpmnPath, loadMrData, mrInfo, rawFileUrl, type MrData, type MrInfo } from './gitlabMr'
 
 interface FileBox {
   path: string
   content: HTMLElement
+  root: HTMLElement
 }
 
 export function gitlabDiffPlatform(): DiffPlatform {
@@ -46,6 +48,8 @@ function toBlock(box: FileBox, data: MrData): DiffFileBlock {
     path: box.path,
     anchor: box.content,
     append: 'first',
+    fileRoot: box.root,
+    isCollapsed: () => isFileCollapsed(box.root),
     loadOld: () =>
       change?.new_file
         ? Promise.resolve(null)
@@ -63,9 +67,23 @@ function bpmnFileBoxes(doc: Document): FileBox[] {
   roots.forEach((root) => {
     const path = filePathOf(root)
     if (!isBpmnPath(path)) return
-    boxes.push({ path: path!, content: contentOf(root) })
+    boxes.push({ path: path!, content: contentOf(root), root })
   })
   return boxes
+}
+
+/**
+ * True when GitLab currently renders this file collapsed (e.g. "marked as
+ * viewed"). GitLab keeps `.diff-content` in place — which is why our first-child
+ * panel survives the collapse — but hides the code body inside it, so we treat
+ * "no rendered code body" as collapsed.
+ */
+function isFileCollapsed(root: HTMLElement): boolean {
+  const body = root.querySelector<HTMLElement>(
+    '.diff-content .diff-viewer, [data-testid="diff-content"] .diff-viewer, ' +
+      '.diff-content table, .diff-content .file-content, .diff-content .diff-grid',
+  )
+  return !isRendered(body)
 }
 
 function filePathOf(root: HTMLElement): string | null {
