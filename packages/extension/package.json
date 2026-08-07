@@ -1,0 +1,38 @@
+{
+  "name": "@git-diagram-viewer/extension",
+  "version": "0.0.0",
+  "private": true,
+  "description": "BPMN viewer & diff browser extension (Chrome, Edge, Firefox) for GitLab & GitHub.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Marco Schäck (https://github.com/emaarco)",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "wxt",
+    "dev:example": "WXT_DEV_EXAMPLE=1 wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build && wxt build -b firefox",
+    "zip": "wxt zip && wxt zip -b firefox",
+    "typecheck": "wxt prepare && tsc --noEmit",
+    "lint:webext": "web-ext lint --source-dir .output/firefox-mv3",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@git-diagram-viewer/core": "*",
+    "bpmn-js": "18.22.1",
+    "dmn-js": "17.10.1",
+    "webext-permission-toggle": "7.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "typescript": "5.9.3",
+    "vite": "8.2.0",
+    "vitest": "4.1.10",
+    "web-ext": "10.6.0",
+    "wxt": "0.21.3"
+  }
+}
