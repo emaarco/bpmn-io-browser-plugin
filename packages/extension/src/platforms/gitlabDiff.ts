@@ -6,7 +6,6 @@
 
 import type { DiffFileBlock, DiffPlatform } from '../diff/diffPlatform'
 import { fetchText } from '../net/client'
-import { isRendered } from '../util/isRendered'
 import { isBpmnPath, loadMrData, mrInfo, rawFileUrl, type MrData, type MrInfo } from './gitlabMr'
 
 interface FileBox {
@@ -14,6 +13,9 @@ interface FileBox {
   content: HTMLElement
   root: HTMLElement
 }
+
+/** Tag name of our injected shadow-root panel (the `name` in diffRunner's createShadowRootUi). */
+const PANEL_TAG = 'git-diagram-diff'
 
 export function gitlabDiffPlatform(): DiffPlatform {
   let cached: { key: string; promise: Promise<MrData> } | null = null
@@ -73,17 +75,29 @@ function bpmnFileBoxes(doc: Document): FileBox[] {
 }
 
 /**
- * True when GitLab currently renders this file collapsed (e.g. "marked as
- * viewed"). GitLab keeps `.diff-content` in place — which is why our first-child
- * panel survives the collapse — but hides the code body inside it, so we treat
- * "no rendered code body" as collapsed.
+ * True when GitLab renders this file collapsed — chevron-collapsed or "marked as
+ * viewed"; both hide the code. Rather than matching version-specific body markup
+ * (which differs across GitLab releases and self-hosted instances), we treat the
+ * file as collapsed when its content area shows no laid-out host content besides
+ * our own injected panel. That survives GitLab collapsing the body by removing
+ * it, `display:none`-ing it, or clipping it to zero height.
  */
 function isFileCollapsed(root: HTMLElement): boolean {
-  const body = root.querySelector<HTMLElement>(
-    '.diff-content .diff-viewer, [data-testid="diff-content"] .diff-viewer, ' +
-      '.diff-content table, .diff-content .file-content, .diff-content .diff-grid',
+  const content = root.querySelector<HTMLElement>(
+    '.diff-content, [data-testid="content-area"], [data-testid="diff-content"]',
   )
-  return !isRendered(body)
+  if (!content) return true
+  for (const child of Array.from(content.children)) {
+    if (child.tagName.toLowerCase() === PANEL_TAG) continue
+    if (hasRenderedBox(child)) return false
+  }
+  return true
+}
+
+/** Connected and laid out with a non-zero box (not detached, display:none, or clipped to 0). */
+function hasRenderedBox(el: Element): boolean {
+  if (!el.isConnected || el.getClientRects().length === 0) return false
+  return el.getBoundingClientRect().height > 0
 }
 
 function filePathOf(root: HTMLElement): string | null {
