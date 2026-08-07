@@ -8,8 +8,8 @@
    it at top/left: 20px, where it clips under the host's file header) and theme
    it from the host tokens the chrome already inherits. */
 .dmn-definitions {
-  top: 44px;
-  left: 32px;
+  top: 55px;
+  left: 25px;
   background-color: var(--bg);
   border-color: var(--border);
   color: var(--fg);
@@ -18,4 +18,24 @@
 .dmn-definitions .dmn-definitions-name,
 .dmn-definitions .dmn-definitions-id {
   color: var(--fg);
+}
+
+/* Decision-table view: dmn-js renders it as an HTML table with a hard-coded
+   light palette (grey text/borders on white), so on a dark page it stays a white
+   block. It exposes every colour as a variable, so remap the greyscale ones to
+   the host tokens the chrome already inherits — this themes it for light *and*
+   dark alike. Accent colours (blue action icons) are left as dmn-js' own. */
+.dmn-decision-table-container {
+  --decision-table-color: var(--fg);
+  --decision-table-background-color: var(--bg);
+  --decision-table-properties-color: var(--fg);
+  --table-color: var(--fg);
+  --table-cell-color: var(--fg);
+  --table-cell-border-color: var(--border);
+  --table-head-border-color: var(--border);
+  --table-head-separator-color: var(--border);
+  --table-head-clause-color: var(--fg);
+  --table-head-variable-color: var(--fg);
+  --hit-policy-explanation-color: var(--fg);
+  --table-row-alternative-background-color: var(--btn-bg);
 }
