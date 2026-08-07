@@ -7,6 +7,7 @@
 
 import type { DiffFileBlock, DiffPlatform } from '../diff/diffPlatform'
 import { fetchText } from '../net/client'
+import { isRendered } from '../util/isRendered'
 import {
   isBpmnPath,
   loadPrData,
@@ -20,6 +21,7 @@ import {
 interface FileBox {
   path: string
   code: HTMLElement
+  root: HTMLElement
 }
 
 export function githubDiffPlatform(): DiffPlatform {
@@ -56,6 +58,8 @@ function toBlock(location: Location, box: FileBox, data: PrData): DiffFileBlock 
     path: box.path,
     anchor: box.code,
     append: 'before',
+    fileRoot: box.root,
+    isCollapsed: () => !isRendered(codeOf(box.root)),
     loadOld: () =>
       status === 'added'
         ? Promise.resolve(null)
@@ -76,7 +80,7 @@ function bpmnFileBoxes(doc: Document): FileBox[] {
     const path = filePathOf(root)
     if (!isBpmnPath(path)) continue
     const code = codeOf(root)
-    if (code) boxes.push({ path: path!, code })
+    if (code) boxes.push({ path: path!, code, root })
   }
   return boxes
 }
@@ -107,7 +111,8 @@ function filePathOf(root: HTMLElement): string | null {
 function modernFilePath(root: HTMLElement): string | null {
   const headingId = root.getAttribute('aria-labelledby')
   const heading = headingId ? root.ownerDocument.getElementById(headingId) : null
-  const raw = heading?.textContent ?? root.querySelector('[data-diff-header-wrapper] h3')?.textContent
+  const raw =
+    heading?.textContent ?? root.querySelector('[data-diff-header-wrapper] h3')?.textContent
   return raw ? normalizeDiffPath(raw) || null : null
 }
 

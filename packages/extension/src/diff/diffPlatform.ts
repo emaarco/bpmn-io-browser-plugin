@@ -13,6 +13,12 @@ export interface DiffFileBlock {
   anchor: HTMLElement
   /** Where to place the panel relative to the anchor (above the code either way). */
   append: 'first' | 'before'
+  /** The file's stable container in the host DOM (survives collapse); observed
+   *  for viewed/collapse toggles so the panel can hide/show along with it. */
+  fileRoot: HTMLElement
+  /** True when the host currently renders this file collapsed (e.g. "marked as
+   *  viewed"), so the panel should hide to match. Re-evaluated live on mutations. */
+  isCollapsed(): boolean
   /** Base (old) XML, or null when the file was newly added. */
   loadOld: () => Promise<string | null>
   /** Head (new) XML, or null when the file was deleted. */
