@@ -1,9 +1,17 @@
 import { defineConfig } from 'wxt'
 
-// `npm run dev:example` opens the browser at a real .bpmn and .dmn file
+// `npm run dev:example` opens the browser at our own in-repo fixtures so the
+// git-host views can be exercised without depending on foreign repos:
+//   - two blob pages (BPMN + DMN) exercise the inline viewer
+//   - a permanently-closed demo PR (#12) exercises the before/after diff view
+// The fixtures live on `main` at packages/extension/e2e/fixtures and are the
+// same files the e2e suite renders.
+const REPO = 'https://github.com/emaarco/bpmn-io-browser-plugin'
+const FIXTURES = `${REPO}/blob/main/packages/extension/e2e/fixtures`
 const EXAMPLE_URLS = [
-  'https://github.com/Miragon/bpmn-to-code/blob/main/shared/bpmn/c7-additional-variables.bpmn',
-  'https://github.com/emaarco/dmn-js-simulation/blob/main/packages/example/public/recommend-bike.dmn',
+  `${FIXTURES}/sample.bpmn`, // inline viewer — BPMN
+  `${FIXTURES}/sample.dmn`, // inline viewer — DMN
+  `${REPO}/pull/12/files`, // diff viewer — closed demo PR (do not merge/delete)
 ]
 const openExample = Boolean(
   (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
@@ -34,7 +42,7 @@ export default defineConfig({
     startUrls: openExample ? EXAMPLE_URLS : undefined,
   },
   manifest: {
-    name: 'Git Diagram Viewer – BPMN & DMN',
+    name: 'BPMN & DMN for GitHub & GitLab',
     description:
       'Render BPMN & DMN diagrams inline on GitLab & GitHub and show a visual before/after diff in merge/pull requests. Includes a standalone diagram viewer.',
     permissions: ['scripting', 'storage', 'contextMenus', 'activeTab'],

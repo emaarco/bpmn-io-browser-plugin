@@ -1,4 +1,4 @@
-# Git Diagram Viewer
+# BPMN & DMN for GitHub & GitLab
 
 [![CI](https://github.com/emaarco/bpmn-io-browser-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/emaarco/bpmn-io-browser-plugin/actions/workflows/ci.yml)
 [![license](https://img.shields.io/github/license/emaarco/bpmn-io-browser-plugin)](./LICENSE)

@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for helping improve the Git Diagram Viewer extension!
+Thanks for helping improve the BPMN & DMN for GitHub & GitLab extension!
 
 ## Getting started
 
@@ -94,8 +94,8 @@ on the extension card to pick up changes.
 
 `gitlab.com` and `github.com` work immediately. For a **self-hosted** GitLab EE /
 GitHub Enterprise instance, open a `.bpmn` file (or a merge request) there and
-click the extension's toolbar icon — or right-click the page → _Enable Git
-Diagram Viewer on this domain_ — to grant access to just that site. You can also
+click the extension's toolbar icon — or right-click the page → _Enable BPMN &
+DMN diagrams on this domain_ — to grant access to just that site. You can also
 manage domains in the options page.
 
 ## Before you open a PR

@@ -30,8 +30,15 @@ It's the primary delivery path for the [`core`](../core) diff engine, wrapped in
 ```bash
 npm run dev                # hot-reload in Chromium
 npm run dev -- -b firefox  # …in Firefox
+npm run dev:example        # …and open the git-host views on our own fixtures
 npm run build              # production build for both browsers
 ```
+
+`npm run dev:example` opens three tabs against this repo so the git-host views
+can be checked end-to-end without foreign repos: the inline viewer on
+`e2e/fixtures/sample.bpmn` and `sample.dmn`, and the before/after diff on a
+permanently-closed demo PR ([#12](https://github.com/emaarco/bpmn-io-browser-plugin/pull/12)).
+The tab list lives in [`wxt.config.ts`](./wxt.config.ts) (`EXAMPLE_URLS`).
 
 Loading the built extension unpacked and the full monorepo layout are covered in
 [CONTRIBUTING.md](../../CONTRIBUTING.md).
