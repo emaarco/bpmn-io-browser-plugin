@@ -11,9 +11,8 @@ task hides in the noise. The hard part of this project isn't drawing the
 diagram — it's answering _"what actually changed in the process?"_
 
 That logic lives here, deliberately isolated from any UI. Because `core` has no
-DOM and no viewer dependency, it runs and unit-tests in plain Node, and feeds
-**both** delivery paths — the [extension](../extension) and the
-[bot](../bot) — from one engine. Same diff, two front-ends.
+DOM and no viewer dependency, it runs and unit-tests in plain Node, and powers
+the [extension](../extension)'s inline before/after diff from one engine.
 
 ## What's inside
 
@@ -22,7 +21,6 @@ DOM and no viewer dependency, it runs and unit-tests in plain Node, and feeds
   element, so noise (formatting, order) is ignored and real edits stand out.
 - **`domain/diff`** — classifies every element as **added / removed / changed /
   moved**, including `zeebe:*` properties.
-- **`domain/report`** — the structured result both front-ends render.
 
 ## Usage
 
