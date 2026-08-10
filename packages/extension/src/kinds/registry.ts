@@ -9,8 +9,6 @@ const KIND_BY_ID: Record<DiagramKind['id'], DiagramKind> = {
   dmn: dmnKind,
 }
 
-export const DIAGRAM_KINDS: readonly DiagramKind[] = Object.values(KIND_BY_ID)
-
 /** The diagram kind that renders this path (viewer + CSS), or null. */
 export function detectKind(pathname: string): DiagramKind | null {
   const id = detectKindId(pathname)

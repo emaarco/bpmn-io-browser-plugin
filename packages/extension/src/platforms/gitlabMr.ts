@@ -12,7 +12,7 @@ import type { MrInfo } from './gitlabMrUrls'
 
 export { isBpmnPath, mrInfo, rawFileUrl, type MrInfo } from './gitlabMrUrls'
 
-export interface MrChange {
+interface MrChange {
   new_path?: string
   old_path?: string
   new_file?: boolean

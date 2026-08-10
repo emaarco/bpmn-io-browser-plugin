@@ -12,7 +12,7 @@ import { apiBase, type PrInfo } from './githubPrUrls'
 
 export { isBpmnPath, normalizeDiffPath, prInfo, rawFileUrl, type PrInfo } from './githubPrUrls'
 
-export interface PrFile {
+interface PrFile {
   filename: string
   previous_filename?: string
   /** added | removed | modified | renamed | copied | changed | unchanged */

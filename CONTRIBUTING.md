@@ -42,6 +42,7 @@ npm test               # unit tests (vitest)
 npm run typecheck
 npm run lint
 npm run lint:deps      # architecture guardrail (dependency-cruiser)
+npm run knip           # unused files, exports & dependencies (knip)
 
 # production build (both browsers) + zips
 npm run build -w @bpmn-io-browser-plugin/extension
@@ -107,6 +108,7 @@ npm test          # unit tests
 npm run typecheck
 npm run lint
 npm run lint:deps  # architecture boundaries
+npm run knip       # unused files, exports & dependencies
 npm run format     # prettier
 ```
 
