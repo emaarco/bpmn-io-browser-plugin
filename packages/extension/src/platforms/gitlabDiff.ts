@@ -6,6 +6,8 @@
 
 import type { DiffFileBlock, DiffPlatform } from '../diff/diffPlatform'
 import { fetchText } from '../net/client'
+import { DIFF_PANEL_TAG } from '../inject/tags'
+import { gitlabSelectors } from './gitlab.selectors'
 import { isBpmnPath, loadMrData, mrInfo, rawFileUrl, type MrData, type MrInfo } from './gitlabMr'
 
 interface FileBox {
@@ -13,9 +15,6 @@ interface FileBox {
   content: HTMLElement
   root: HTMLElement
 }
-
-/** Tag name of our injected shadow-root panel (the `name` in diffRunner's createShadowRootUi). */
-const PANEL_TAG = 'git-diagram-diff'
 
 export function gitlabDiffPlatform(): DiffPlatform {
   let cached: { key: string; promise: Promise<MrData> } | null = null
@@ -64,7 +63,7 @@ function toBlock(box: FileBox, data: MrData): DiffFileBlock {
 }
 
 function bpmnFileBoxes(doc: Document): FileBox[] {
-  const roots = doc.querySelectorAll<HTMLElement>('.diff-file, [data-testid="file-holder"]')
+  const roots = doc.querySelectorAll<HTMLElement>(gitlabSelectors.diff.fileRoot)
   const boxes: FileBox[] = []
   roots.forEach((root) => {
     const path = filePathOf(root)
@@ -83,12 +82,10 @@ function bpmnFileBoxes(doc: Document): FileBox[] {
  * it, `display:none`-ing it, or clipping it to zero height.
  */
 function isFileCollapsed(root: HTMLElement): boolean {
-  const content = root.querySelector<HTMLElement>(
-    '.diff-content, [data-testid="content-area"], [data-testid="diff-content"]',
-  )
+  const content = root.querySelector<HTMLElement>(gitlabSelectors.diff.collapseContent)
   if (!content) return true
   for (const child of Array.from(content.children)) {
-    if (child.tagName.toLowerCase() === PANEL_TAG) continue
+    if (child.tagName.toLowerCase() === DIFF_PANEL_TAG) continue
     if (hasRenderedBox(child)) return false
   }
   return true
@@ -101,19 +98,18 @@ function hasRenderedBox(el: Element): boolean {
 }
 
 function filePathOf(root: HTMLElement): string | null {
-  const withData = root.matches('[data-path]') ? root : root.querySelector('[data-path]')
+  const attr = gitlabSelectors.diff.pathAttr
+  const withData = root.matches(attr) ? root : root.querySelector(attr)
   if (withData) return withData.getAttribute('data-path')
-  const titleEl = root.querySelector('.file-title-name, [data-testid="file-title"]')
+  const titleEl = root.querySelector(gitlabSelectors.diff.titleEl)
   if (titleEl) return titleEl.getAttribute('title') || titleEl.textContent?.trim() || null
   return null
 }
 
 function contentOf(root: HTMLElement): HTMLElement {
-  const explicit = root.querySelector<HTMLElement>('.diff-content, [data-testid="diff-content"]')
+  const explicit = root.querySelector<HTMLElement>(gitlabSelectors.diff.contentExplicit)
   if (explicit) return explicit
-  const title = root.querySelector<HTMLElement>(
-    '.file-title, .js-file-title, [data-testid="file-title"], .file-title-flex-parent',
-  )
+  const title = root.querySelector<HTMLElement>(gitlabSelectors.diff.titleForSibling)
   const next = title?.nextElementSibling
   if (next instanceof HTMLElement) return next
   return root

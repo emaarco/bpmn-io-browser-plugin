@@ -18,8 +18,8 @@ import type { BlobPlatform } from '../platforms/types'
 import { detectKind } from '../kinds/registry'
 import { mountModelPanel, type ModelPanelHandle } from '../viewer/modelPanel'
 import { injectShadowStyles } from './shadowStyles'
+import { HOST_TAG } from './tags'
 
-const HOST_TAG = 'bpmn-io-browser-plugin'
 const MOUNT_RETRIES = 12
 const RETRY_INTERVAL_MS = 500
 const RECHECK_DEBOUNCE_MS = 200

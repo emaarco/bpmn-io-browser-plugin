@@ -12,6 +12,7 @@ import { injectShadowStyles } from './shadowStyles'
 import { DIFF_SHADOW_CSS } from '../styles/bundledCss'
 import { mountDiffView, type DiffViewHandle } from '../diff/diffView'
 import type { DiffFileBlock, DiffPlatform } from '../diff/diffPlatform'
+import { DIFF_PANEL_TAG } from './tags'
 
 const DEBOUNCE_MS = 300
 const COLLAPSE_DEBOUNCE_MS = 150
@@ -37,7 +38,7 @@ export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void
 
   async function mount(block: DiffFileBlock): Promise<void> {
     const ui = await createShadowRootUi<DiffViewHandle>(ctx, {
-      name: 'git-diagram-diff',
+      name: DIFF_PANEL_TAG,
       position: 'inline',
       anchor: block.anchor,
       append: block.append,

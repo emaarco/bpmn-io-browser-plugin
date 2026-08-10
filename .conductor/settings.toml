@@ -1,0 +1,16 @@
+"$schema" = "https://conductor.build/schemas/settings.repo.schema.json"
+
+[scripts]
+# New workspaces install dependencies (postinstall runs `wxt prepare`).
+setup = "npm install"
+# Each workspace runs on its own $CONDUCTOR_PORT, so parallel runs never clash.
+run_mode = "concurrent"
+
+# Build the extension in E2E mode, then run the WebdriverIO suite on Chrome and
+# save a PNG of each test (the rendered diagram above the host DOM) into
+# packages/extension/.output/e2e-screenshots/. Local-only: it drives the Mac's
+# installed Chrome and the screenshots are meant to be viewed there.
+[scripts.run.e2e-screenshots]
+command = "npm run e2e:build -w @bpmn-io-browser-plugin/extension && WDIO_SCREENSHOTS=1 WDIO_BROWSERS=chrome WDIO_PORT=$CONDUCTOR_PORT npm run test:e2e -w @bpmn-io-browser-plugin/extension"
+available_in = [ "local" ]
+icon = "camera"
