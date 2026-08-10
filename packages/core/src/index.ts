@@ -6,8 +6,6 @@
 
 // Domain — pure diff over parsed models
 export { computeDiff } from './domain/diff'
-export { describeDiff } from './domain/report'
-export type { DiffReport, DiffEntry, DiffKind } from './domain/report'
 export { signature } from './domain/signature'
 export { isEmptyDiff } from './domain/model'
 export type { BpmnDiff, DiffElement, ParsedModel, ModdleElement, Point } from './domain/model'

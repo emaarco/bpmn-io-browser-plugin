@@ -20,19 +20,13 @@ npm run dev -w @bpmn-io-browser-plugin/extension -- -b firefox
 
 This is an npm-workspaces monorepo:
 
-| Package              | What it is                                                                              |
-| -------------------- | --------------------------------------------------------------------------------------- |
-| `packages/core`      | Framework-free BPMN parsing (bpmn-moddle) + the semantic diff. No DOM.                  |
-| `packages/extension` | The [WXT](https://wxt.dev) extension: content scripts, options, background.             |
-| `packages/bot`       | Spike: a server-side diff report (PR/MR bot) built on `core` — install-free, team-wide. |
+| Package              | What it is                                                                  |
+| -------------------- | --------------------------------------------------------------------------- |
+| `packages/core`      | Framework-free BPMN parsing (bpmn-moddle) + the semantic diff. No DOM.      |
+| `packages/extension` | The [WXT](https://wxt.dev) extension: content scripts, options, background. |
 
-The diff is deliberately isolated in `core` so it is unit-tested in plain Node
-and feeds both the extension **and** the bot spike — same engine, two delivery
-paths. Try the bot:
-
-```bash
-npm run diff -w @bpmn-io-browser-plugin/bot -- <old.bpmn> <new.bpmn>
-```
+The diff is deliberately isolated in `core` so it is unit-tested in plain Node,
+independently of the extension that renders it.
 
 ## Development
 
