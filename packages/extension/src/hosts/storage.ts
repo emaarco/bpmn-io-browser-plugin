@@ -26,7 +26,7 @@ export async function getSavedHosts(): Promise<SelfHostedHost[]> {
   return Array.isArray(value) ? (value as SelfHostedHost[]) : []
 }
 
-export async function saveHosts(hosts: SelfHostedHost[]): Promise<void> {
+async function saveHosts(hosts: SelfHostedHost[]): Promise<void> {
   const byOrigin = new Map(hosts.map((host) => [host.origin, host]))
   const unique = [...byOrigin.values()].sort((a, b) => a.origin.localeCompare(b.origin))
   await browser.storage.local.set({ [STORAGE_KEY]: unique })

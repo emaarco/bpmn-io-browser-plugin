@@ -10,6 +10,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "postinstall": "wxt prepare",
     "dev": "wxt",
     "dev:example": "WXT_DEV_EXAMPLE=1 wxt",
     "dev:firefox": "wxt -b firefox",

@@ -38,6 +38,9 @@ jobs:
       - name: Architecture check (dependency-cruiser)
         run: npm run lint:deps
 
+      - name: Unused files, exports & dependencies (knip)
+        run: npm run knip
+
       - name: Unit tests
         run: npm test
 
