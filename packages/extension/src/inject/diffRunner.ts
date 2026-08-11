@@ -18,7 +18,10 @@ const DEBOUNCE_MS = 300
 const COLLAPSE_DEBOUNCE_MS = 150
 
 export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void {
-  const mounted = new WeakSet<Element>()
+  // File roots with a mount currently in flight. Durable de-duplication is done
+  // against the DOM (does this file root already contain our panel?), not against
+  // a code element's identity, which GitHub re-creates when Viewed is toggled.
+  const mounting = new WeakSet<Element>()
 
   async function run(): Promise<void> {
     if (!platform.pageKey(location)) return
@@ -30,9 +33,10 @@ export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void
       return
     }
     for (const block of blocks) {
-      if (mounted.has(block.anchor)) continue
-      mounted.add(block.anchor)
-      void mount(block)
+      if (mounting.has(block.fileRoot)) continue
+      if (block.fileRoot.querySelector(DIFF_PANEL_TAG)) continue
+      mounting.add(block.fileRoot)
+      void mount(block).finally(() => mounting.delete(block.fileRoot))
     }
   }
 
@@ -65,13 +69,6 @@ export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void
     let wasHidden = false
     const sync = () => {
       const collapsed = block.isCollapsed()
-      // Toggle an attribute rather than the host's inline `display`: WXT's
-      // shadow-root reset (`:host{all:initial !important}`) is an important rule
-      // *inside* the shadow tree, which beats even an inline `!important` from
-      // outside — so the host's display can't be set from here. Instead our
-      // shadow CSS carries `:host([data-collapsed]){display:none!important}`
-      // (higher specificity than `:host`), and we flip the attribute, which the
-      // CSS reset doesn't touch.
       if (collapsed) ui.shadowHost.setAttribute('data-collapsed', '')
       else ui.shadowHost.removeAttribute('data-collapsed')
       if (!collapsed && wasHidden) ui.mounted?.refit()
