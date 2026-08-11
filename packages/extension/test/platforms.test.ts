@@ -8,6 +8,7 @@ import {
   prInfo,
   rawFileUrl as prRawFileUrl,
 } from '../src/platforms/githubPrUrls'
+import { commitInfo } from '../src/platforms/githubCommitUrls'
 
 function loc(pathname: string, origin = 'https://gitlab.com', search = ''): Location {
   return { pathname, origin, search, hostname: new URL(origin).hostname } as Location
@@ -85,6 +86,31 @@ describe('github pull-request urls', () => {
     expect(
       prRawFileUrl(loc('/o/r/pull/1', 'https://github.com'), 'o/r', 'abc123', 'a/b c.bpmn'),
     ).toBe('https://github.com/o/r/raw/abc123/a/b%20c.bpmn')
+  })
+})
+
+describe('github commit urls', () => {
+  it('parses owner, repo and sha from a commit url', () => {
+    expect(
+      commitInfo(loc('/org/repo/commit/54d93c90a9c6bacb040e1f5cb608fb9cffb263ab', 'https://github.com')),
+    ).toEqual({
+      owner: 'org',
+      repo: 'repo',
+      sha: '54d93c90a9c6bacb040e1f5cb608fb9cffb263ab',
+      key: 'org/repo@54d93c90a9c6bacb040e1f5cb608fb9cffb263ab',
+    })
+  })
+
+  it('accepts a short sha and ignores trailing path/query', () => {
+    expect(commitInfo(loc('/org/repo/commit/54d93c9/checks', 'https://github.com'))?.sha).toBe(
+      '54d93c9',
+    )
+  })
+
+  it('rejects non-commit and non-hex paths', () => {
+    expect(commitInfo(loc('/org/repo/commits/main', 'https://github.com'))).toBeNull()
+    expect(commitInfo(loc('/org/repo/commit/not-a-sha', 'https://github.com'))).toBeNull()
+    expect(commitInfo(loc('/org/repo/pull/7/files', 'https://github.com'))).toBeNull()
   })
 })
 

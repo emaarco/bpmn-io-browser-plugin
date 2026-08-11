@@ -45,6 +45,15 @@ function scriptsFor(origin: string) {
       js: ['content-scripts/github-pr.js'],
       runAt: 'document_idle' as const,
     },
+    {
+      id: `bpmn-io-browser-plugin:${origin}:github-commit`,
+      matches: [`${origin}/*/commit/*`],
+      // GitLab commit URLs (`/group/repo/-/commit/…`) also match `*/commit/*`;
+      // exclude every GitLab `/-/` route so this only fires on real GitHub.
+      excludeMatches: [`${origin}/*/-/*`],
+      js: ['content-scripts/github-commit.js'],
+      runAt: 'document_idle' as const,
+    },
   ]
 }
 

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Commit · octo/flows@c0ffee0</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+      }
+      /* A real box so `isRendered(codeOf(root))` reads "expanded", not collapsed. */
+      table[data-diff-anchor] {
+        display: table;
+        width: 100%;
+        min-height: 120px;
+      }
+      .diff-body {
+        padding: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- A GitHub commit page shares the "Files changed" diff markup, trimmed to
+         the adapter's stable hooks: a `div[id^="diff-"]` whose `aria-labelledby`
+         heading holds the file path, a `[data-diff-header-wrapper]`, and a
+         `table[data-diff-anchor]` code table. The commit adapter loads the
+         parent(base)/commit(head) SHAs + the file list from `/api/v3`. -->
+    <div id="files">
+      <div id="diff-order-bpmn" aria-labelledby="diff-order-bpmn-heading">
+        <div data-diff-header-wrapper>
+          <h3 id="diff-order-bpmn-heading">flows/order.bpmn</h3>
+        </div>
+        <div class="diff-body">
+          <table data-diff-anchor>
+            <tbody>
+              <tr>
+                <td>&lt;bpmn:definitions/&gt;</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
