@@ -8,3 +8,9 @@ run_mode = "concurrent"
 command = "npm run e2e:build -w @bpmn-io-browser-plugin/extension && WDIO_SCREENSHOTS=1 WDIO_BROWSERS=chrome WDIO_PORT=$CONDUCTOR_PORT npm run test:e2e -w @bpmn-io-browser-plugin/extension"
 available_in = [ "local" ]
 icon = "camera"
+
+[scripts.run.dev-example]
+command = "npm run dev:example -- --port $CONDUCTOR_PORT"
+available_in = [ "local" ]
+default = true
+icon = "play"
