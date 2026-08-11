@@ -13,6 +13,7 @@
 import { h } from '../dom'
 import { errorMessage } from '../util/errorMessage'
 import { detectHostTheme } from '../theme'
+import { enableFocusZoom } from './focusZoom'
 import type { DiagramKind, DiagramViewer } from '../kinds/types'
 
 export interface ModelPanelHandle {
@@ -64,6 +65,7 @@ export function mountModelPanel(
   let viewer: DiagramViewer | null = null
   let destroyed = false
   let resizeObserver: ResizeObserver | null = null
+  let detachFocusZoom: (() => void) | null = null
 
   void load()
 
@@ -96,6 +98,7 @@ export function mountModelPanel(
     btnFit.addEventListener('click', () => viewer?.fit())
 
     viewer.fit()
+    detachFocusZoom = enableFocusZoom(canvas, (active) => viewer?.setInteractive(active))
     // Re-fit when the container resizes (window/sidebar) to keep it centred.
     resizeObserver = new ResizeObserver(() => viewer?.fit())
     resizeObserver.observe(canvas)
@@ -104,6 +107,8 @@ export function mountModelPanel(
   return {
     destroy() {
       destroyed = true
+      detachFocusZoom?.()
+      detachFocusZoom = null
       resizeObserver?.disconnect()
       resizeObserver = null
       viewer?.destroy()

@@ -18,6 +18,8 @@ export interface DiagramViewer {
   fit(): void
   /** Zoom by a factor, or `'fit'` to fit the viewport. */
   zoom(factor: number | 'fit'): void
+  /** Enable/disable wheel zoom; the panel turns it on only while focused. */
+  setInteractive(active: boolean): void
   destroy(): void
 }
 

@@ -2,6 +2,7 @@ import DmnNavigatedViewer from 'dmn-js/lib/NavigatedViewer'
 import { DMN_SHADOW_CSS } from '../styles/bundledCss'
 import { resolveDiagramColors } from '../theme'
 import { fitWithPadding, type FitCanvas } from '../viewer/fitWithPadding'
+import { toggleZoomScroll } from '../viewer/zoomScroll'
 import type { DiagramKind, DiagramViewer } from './types'
 
 export const dmnKind: DiagramKind = {
@@ -13,12 +14,12 @@ export const dmnKind: DiagramKind = {
     const viewer = new DmnNavigatedViewer({
       container: canvas,
       drd: {
+        zoomScroll: { enabled: false },
         drdRenderer: {
           defaultFillColor: fill,
           defaultStrokeColor: stroke,
           defaultLabelColor: stroke,
         },
-        zoomScroll: { enabled: false },
       },
     })
     try {
@@ -52,6 +53,7 @@ export const dmnKind: DiagramKind = {
         if (!c) return
         c.zoom(factor === 'fit' ? 'fit-viewport' : c.zoom() * factor)
       },
+      setInteractive: (active) => toggleZoomScroll(viewer.getActiveViewer(), active),
       destroy: () => viewer.destroy(),
     }
   },

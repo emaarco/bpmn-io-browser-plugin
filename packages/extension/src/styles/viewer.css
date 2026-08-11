@@ -137,6 +137,13 @@
   overflow: hidden;
 }
 
+/* Focused pane: wheel zoom is live. */
+.git-diagram-canvas.is-active,
+.git-diagram-di-area.is-active {
+  outline: 2px solid var(--tab-active);
+  outline-offset: -2px;
+}
+
 .git-diagram-placeholder {
   position: absolute;
   inset: 0;

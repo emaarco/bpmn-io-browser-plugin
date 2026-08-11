@@ -17,8 +17,7 @@ export async function createThemedViewer(
   const viewer = new NavigatedViewer({
     container: canvas,
     bpmnRenderer: { defaultStrokeColor: stroke, defaultFillColor: fill },
-    // Pan only by click-and-drag; don't hijack the wheel — scrolling over the
-    // diagram scrolls the page. Zoom stays on the +/−/Fit buttons.
+    // Off by default; the panel enables it only while the pane is focused.
     zoomScroll: { enabled: false },
   })
   try {
