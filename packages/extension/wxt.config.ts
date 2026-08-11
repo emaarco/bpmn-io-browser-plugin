@@ -13,10 +13,14 @@ const EXAMPLE_URLS = [
   `${FIXTURES}/sample.dmn`, // inline viewer — DMN
   `${REPO}/pull/12/files`, // diff viewer — closed demo PR (do not merge/delete)
 ]
-const openExample = Boolean(
-  (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
-    ?.WXT_DEV_EXAMPLE,
-)
+const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
+const openExample = Boolean(env?.WXT_DEV_EXAMPLE)
+
+// E2E test build: let the background worker fetch the fixture server's raw files
+// and PR JSON from localhost (the github content scripts also match localhost —
+// see `withE2eMatches`). Never enabled in a store build.
+const e2e = Boolean(env?.WXT_E2E)
+const e2eHostPermissions = e2e ? ['http://localhost/*'] : []
 
 // https://wxt.dev/api/config.html
 export default defineConfig({
@@ -59,6 +63,7 @@ export default defineConfig({
       'https://github.com/*',
       'https://raw.githubusercontent.com/*',
       'https://api.github.com/*',
+      ...e2eHostPermissions,
     ],
     optional_host_permissions: ['*://*/*'],
     browser_specific_settings: {

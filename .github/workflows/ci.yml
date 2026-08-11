@@ -51,8 +51,16 @@ jobs:
         run: npm run lint:webext -w @bpmn-io-browser-plugin/extension
 
   e2e:
-    name: E2E
+    name: E2E (${{ matrix.browser }})
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.experimental || false }}
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, edge]
+        include:
+          - browser: firefox
+            experimental: true
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -65,12 +73,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build extension
-        run: npm run build -w @bpmn-io-browser-plugin/extension
-
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps chromium
-        working-directory: packages/extension
+      - name: Build extension (E2E)
+        run: npm run e2e:build -w @bpmn-io-browser-plugin/extension
 
       - name: E2E tests
         run: npm run test:e2e -w @bpmn-io-browser-plugin/extension
+        env:
+          WDIO_BROWSERS: ${{ matrix.browser }}

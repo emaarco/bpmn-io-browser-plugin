@@ -42,9 +42,11 @@ export interface BlobPlatformConfig {
    * From the code content, `.closest(insertClimb)` yields the full-width block we
    * insert our container before: on GitLab the whole file card (`.file-holder`,
    * the code sits in a flex row), on GitHub the enclosing `section` (the code is
-   * a horizontally-scrolling column below the file header).
+   * a horizontally-scrolling column below the file header). Pass an array to try
+   * several ancestors in order — a cheap hedge against host DOM drift; if none
+   * match we fall back to the code element itself.
    */
-  insertClimb: string
+  insertClimb: string | string[]
 }
 
 /**
@@ -85,7 +87,12 @@ export function createBlobPlatform(config: BlobPlatformConfig): BlobPlatform {
     findInsertAnchor(doc) {
       const code = findCode(doc)
       if (!code) return null
-      return code.closest<HTMLElement>(config.insertClimb) ?? code
+      const climbs = Array.isArray(config.insertClimb) ? config.insertClimb : [config.insertClimb]
+      for (const climb of climbs) {
+        const ancestor = code.closest<HTMLElement>(climb)
+        if (ancestor) return ancestor
+      }
+      return code // no ancestor matched — insert right at the code element
     },
   }
 }

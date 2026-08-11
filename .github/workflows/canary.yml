@@ -1,0 +1,53 @@
+name: Canary (GitHub DOM drift)
+
+# Drives the REAL github.com with the extension loaded and checks that our
+# content scripts still inject the diagram. If GitHub changes its DOM so our
+# selectors no longer match, this goes red — an early warning that the fixtures +
+# `src/platforms/github.selectors.ts` need updating.
+#
+# Deliberately SEPARATE from CI: it runs on a schedule (not on PRs), so real
+# GitHub's occasional flakiness / A-B-tested DOM can never block a merge. It only
+# fails its own workflow (visible in the Actions tab). See CONTRIBUTING.md.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Mondays 06:00 UTC — weekly is plenty for DOM drift
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  live:
+    name: Live injection on github.com
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Normal build → real github.com host matches (no WXT_E2E localhost matches).
+      - name: Build extension
+        run: npm run build -w @bpmn-io-browser-plugin/extension
+
+      - name: Live canary (Chrome, real github.com)
+        run: npm run test:e2e:live -w @bpmn-io-browser-plugin/extension
+        env:
+          WDIO_BROWSERS: chrome
+          WDIO_SCREENSHOTS: '1'
+
+      - name: Upload canary screenshots
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: canary-screenshots
+          path: packages/extension/.output/e2e-screenshots/
+          if-no-files-found: ignore
+          retention-days: 14

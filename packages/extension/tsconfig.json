@@ -4,5 +4,8 @@
     "strict": true,
     "noUncheckedIndexedAccess": true
   },
-  "files": ["../core/src/types/bpmn-moddle.d.ts"]
+  "files": ["../core/src/types/bpmn-moddle.d.ts"],
+  // The E2E suite needs WebdriverIO's global types; it is typechecked on its own
+  // via `e2e/tsconfig.json` (see the `typecheck` script), not in this project.
+  "exclude": ["**/node_modules", ".output", "e2e", "wdio.conf.ts"]
 }

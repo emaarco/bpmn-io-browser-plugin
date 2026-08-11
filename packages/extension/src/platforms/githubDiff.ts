@@ -8,6 +8,7 @@
 import type { DiffFileBlock, DiffPlatform } from '../diff/diffPlatform'
 import { fetchText } from '../net/client'
 import { isRendered } from '../util/isRendered'
+import { githubSelectors } from './github.selectors'
 import {
   isBpmnPath,
   loadPrData,
@@ -91,19 +92,21 @@ function bpmnFileBoxes(doc: Document): FileBox[] {
  * `data-diff-header-wrapper` hook and climb to the owning `#diff-<hash>`.
  */
 function fileRoots(doc: Document): HTMLElement[] {
-  const legacy = [...doc.querySelectorAll<HTMLElement>('.file[data-tagsearch-path], .js-file')]
-  const modern = [...doc.querySelectorAll<HTMLElement>('[data-diff-header-wrapper]')]
-    .map((header) => header.closest<HTMLElement>('div[id^="diff-"]'))
+  const legacy = [...doc.querySelectorAll<HTMLElement>(githubSelectors.diff.fileRootLegacy)]
+  const modern = [...doc.querySelectorAll<HTMLElement>(githubSelectors.diff.diffHeaderWrapper)]
+    .map((header) => header.closest<HTMLElement>(githubSelectors.diff.modernRootClimb))
     .filter((el): el is HTMLElement => el !== null)
   return [...legacy, ...modern]
 }
 
 function filePathOf(root: HTMLElement): string | null {
-  const attr = root.getAttribute('data-tagsearch-path') || root.getAttribute('data-path')
+  const attr = githubSelectors.diff.pathAttrs
+    .map((name) => root.getAttribute(name))
+    .find((value): value is string => !!value)
   if (attr) return attr
   const modern = modernFilePath(root)
   if (modern) return modern
-  const info = root.querySelector('.file-info a, .file-header [title]')
+  const info = root.querySelector(githubSelectors.diff.legacyPathEl)
   return info?.getAttribute('title') || info?.textContent?.trim() || null
 }
 
@@ -112,12 +115,12 @@ function modernFilePath(root: HTMLElement): string | null {
   const headingId = root.getAttribute('aria-labelledby')
   const heading = headingId ? root.ownerDocument.getElementById(headingId) : null
   const raw =
-    heading?.textContent ?? root.querySelector('[data-diff-header-wrapper] h3')?.textContent
+    heading?.textContent ?? root.querySelector(githubSelectors.diff.modernHeading)?.textContent
   return raw ? normalizeDiffPath(raw) || null : null
 }
 
 function codeOf(root: HTMLElement): HTMLElement | null {
-  const modern = root.querySelector<HTMLElement>('table[data-diff-anchor]')
+  const modern = root.querySelector<HTMLElement>(githubSelectors.diff.modernCode)
   if (modern) return modern.parentElement ?? modern
-  return root.querySelector<HTMLElement>('.js-file-content, .data.highlight, .diff-table')
+  return root.querySelector<HTMLElement>(githubSelectors.diff.legacyCode)
 }
