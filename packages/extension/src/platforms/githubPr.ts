@@ -11,9 +11,6 @@ import { fetchJson } from '../net/client'
 import type { GithubDiffData, GithubDiffFile } from './githubDiffDom'
 import { apiBase, type PrInfo } from './githubPrUrls'
 
-export { isBpmnPath, normalizeDiffPath, prInfo, rawFileUrl, type PrInfo } from './githubPrUrls'
-export type { GithubDiffData } from './githubDiffDom'
-
 interface PrResponse {
   base: { sha: string; repo: { full_name: string } | null }
   head: { sha: string; repo: { full_name: string } | null }

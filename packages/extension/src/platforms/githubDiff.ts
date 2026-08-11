@@ -8,7 +8,8 @@
 
 import type { DiffPlatform } from '../diff/diffPlatform'
 import { createGithubDiffPlatform } from './githubDiffPlatform'
-import { loadPrData, prInfo } from './githubPr'
+import { loadPrData } from './githubPr'
+import { prInfo } from './githubPrUrls'
 
 export function githubDiffPlatform(): DiffPlatform {
   return createGithubDiffPlatform(prInfo, loadPrData)
