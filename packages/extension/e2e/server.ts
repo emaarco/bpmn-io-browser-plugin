@@ -6,11 +6,11 @@
  * It serves three things:
  *   1. The built extension's own pages/assets from `.output/chrome-mv3`
  *      (so the standalone `viewer.html` can be driven over HTTP, extension-free).
- *   2. GitHub-shaped host pages — a blob file view and a pull-request "Files
- *      changed" view — from `fixtures/host-dom/`.
+ *   2. GitHub-shaped host pages — a blob file view, a pull-request "Files
+ *      changed" view and a single-commit diff view — from `fixtures/host-dom/`.
  *   3. The data those pages make the extension fetch: the raw `.bpmn`/`.dmn`
- *      bytes (blob + PR base/head) and the PR REST metadata the diff adapter
- *      reads from `/api/v3` (the non-github.com / Enterprise code path).
+ *      bytes (blob + base/head) and the PR/commit REST metadata the diff adapters
+ *      read from `/api/v3` (the non-github.com / Enterprise code path).
  */
 
 import { createServer, type Server } from 'node:http'
@@ -32,6 +32,15 @@ const PR = {
   file: 'flows/order.bpmn',
   baseSha: 'base0000000000000000000000000000000000000',
   headSha: 'head1111111111111111111111111111111111111',
+} as const
+
+/** The single commit the fixtures describe (head = its own SHA, base = parent). */
+const COMMIT = {
+  owner: 'octo',
+  repo: 'flows',
+  sha: 'c0ffee00c0ffee00c0ffee00c0ffee00c0ffee00',
+  parentSha: 'dead0000dead0000dead0000dead0000dead0000',
+  file: 'flows/order.bpmn',
 } as const
 
 const MIME: Record<string, string> = {
@@ -104,6 +113,20 @@ export function startFixtureServer(port: number): Promise<FixtureServer> {
       )
     }
 
+    // GitHub REST metadata for the commit diff adapter (Enterprise `/api/v3` path).
+    if (path === `/api/v3/repos/${COMMIT.owner}/${COMMIT.repo}/commits/${COMMIT.sha}`) {
+      return send(
+        res,
+        200,
+        MIME['.json']!,
+        JSON.stringify({
+          sha: COMMIT.sha,
+          parents: [{ sha: COMMIT.parentSha }],
+          files: [{ filename: COMMIT.file, status: 'modified' }],
+        }),
+      )
+    }
+
     // Raw file content (blob viewer + PR base/head loaders).
     if (path.includes('/raw/')) {
       return send(res, 200, MIME[extname(path)] ?? MIME['.bpmn']!, rawDiagram(path))
@@ -115,6 +138,9 @@ export function startFixtureServer(port: number): Promise<FixtureServer> {
     }
     if (path.includes('/pull/')) {
       return send(res, 200, MIME['.html']!, readFileSync(join(hostDom, 'pr.html')))
+    }
+    if (path.includes('/commit/')) {
+      return send(res, 200, MIME['.html']!, readFileSync(join(hostDom, 'commit.html')))
     }
 
     // Everything else: the built extension's own pages/assets (viewer.html, …).

@@ -27,9 +27,10 @@ Tampermonkey userscripts, now reworked into a tested, store-ready extension.
 
 - **Inline viewer** — open a `.bpmn` / `.dmn` file on GitLab or GitHub and the
   diagram appears above the source (drag to pan; the +/− and fit buttons zoom).
-- **Merge / pull-request diff** — every changed `.bpmn` in an MR/PR gets a
-  before/after view that marks added / removed / changed / moved elements
-  (semantic diff, including `zeebe:*` properties) with prev/next navigation.
+- **Merge / pull-request diff** — every changed `.bpmn` in an MR/PR (and on a
+  GitHub single-commit page) gets a before/after view that marks added / removed
+  / changed / moved elements (semantic diff, including `zeebe:*` properties) with
+  prev/next navigation.
 - **Standalone viewer** — a built-in page to drop in any local `.bpmn` / `.dmn`
   file; nothing leaves your machine, no site permissions needed.
 - **Self-hosted** — one click (toolbar icon or right-click) grants the viewer on
