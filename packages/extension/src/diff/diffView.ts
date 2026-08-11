@@ -14,6 +14,8 @@ import { diffBpmn, type BpmnDiff } from '@bpmn-io-browser-plugin/core'
 import { h } from '../dom'
 import { errorMessage } from '../util/errorMessage'
 import { createThemedViewer } from '../viewer/createThemedViewer'
+import { enableFocusZoom } from '../viewer/focusZoom'
+import { toggleZoomScroll } from '../viewer/zoomScroll'
 import { detectHostTheme } from '../theme'
 import { fitWithPadding } from '../viewer/fitWithPadding'
 import { applyMarkers, changedIds, MARKER } from './markers'
@@ -150,6 +152,17 @@ export function mountDiffView(container: HTMLElement, options: DiffViewOptions):
   btnOut.addEventListener('click', () => zoom(1 / ZOOM_STEP))
   btnFit.addEventListener('click', fitVisible)
 
+  // Toggle zoomScroll on every viewer so both diff panes stay in sync; a viewer
+  // that mounts later re-applies the current state via applyInteractive().
+  let interactive = false
+  const applyInteractive = () => {
+    for (const viewer of [oldViewer, newViewer, plainViewer]) toggleZoomScroll(viewer, interactive)
+  }
+  const detachFocusZoom = enableFocusZoom(diagramArea, (active) => {
+    interactive = active
+    applyInteractive()
+  })
+
   void load()
 
   /** Render the current (head) model into its pane — only once, and only when needed. */
@@ -157,6 +170,7 @@ export function mountDiffView(container: HTMLElement, options: DiffViewOptions):
     if (plainRendered || destroyed || !headLoaded) return
     plainRendered = true
     plainViewer = await mountViewer(plainCanvas, headXml, 'No current model (file deleted).')
+    applyInteractive()
     if (modelView === 'plain') fitViewer(plainViewer)
   }
 
@@ -172,6 +186,7 @@ export function mountDiffView(container: HTMLElement, options: DiffViewOptions):
       teardown()
       return
     }
+    applyInteractive()
 
     let diff = EMPTY_DIFF
     if (oldXml && newXml) {
@@ -205,6 +220,7 @@ export function mountDiffView(container: HTMLElement, options: DiffViewOptions):
   return {
     destroy() {
       destroyed = true
+      detachFocusZoom()
       resizeObserver?.disconnect()
       resizeObserver = null
       teardown()
