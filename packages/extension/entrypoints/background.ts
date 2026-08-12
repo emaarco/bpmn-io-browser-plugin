@@ -5,6 +5,7 @@ import type { BackgroundRequest, FetchTextResponse } from '../src/net/messages'
 import { registerHost, registerSavedHosts, unregisterHost } from '../src/hosts/registration'
 import { addHost, getSavedHosts, removeHost } from '../src/hosts/storage'
 import { isSupportedUrl, originToPattern, patternToOrigin } from '../src/hosts/detect'
+import { getGithubToken, tokenTargetsGithubApi } from '../src/net/githubToken'
 
 export default defineBackground(() => {
   // Re-register content scripts for user-added self-hosted instances on startup.
@@ -85,10 +86,25 @@ async function onRevoked(patterns: string[]): Promise<void> {
 
 async function fetchTextForContent(url: string): Promise<FetchTextResponse> {
   try {
-    const response = await fetch(url, { credentials: 'include' })
+    const response = await fetch(url, {
+      credentials: 'include',
+      headers: await githubApiAuthHeaders(url),
+    })
     if (!response.ok) return { ok: false, error: `HTTP ${response.status} for ${url}` }
     return { ok: true, text: await response.text() }
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) }
   }
+}
+
+/**
+ * Authorization header for a request, but only for github.com's REST API — the
+ * one host the page cookie can't reach (see {@link githubToken}). Everything else
+ * (raw content, GitLab, GitHub Enterprise) is same-origin and cookie-authed, and
+ * must never receive the token.
+ */
+async function githubApiAuthHeaders(url: string): Promise<HeadersInit | undefined> {
+  if (!tokenTargetsGithubApi(url)) return undefined
+  const token = await getGithubToken()
+  return token ? { Authorization: `Bearer ${token}` } : undefined
 }

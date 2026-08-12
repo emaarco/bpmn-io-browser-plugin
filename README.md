@@ -35,6 +35,10 @@ Tampermonkey userscripts, now reworked into a tested, store-ready extension.
   file; nothing leaves your machine, no site permissions needed.
 - **Self-hosted** — one click (toolbar icon or right-click) grants the viewer on
   your GitLab EE / GitHub Enterprise instance; manage domains in the options page.
+- **Private repos** — public repos, GitLab and GitHub Enterprise work out of the
+  box. **Private repos on github.com** additionally need an optional read-only
+  API token (set it in the options), because github.com serves its API from a
+  separate origin (`api.github.com`) your login cookie can't reach.
 
 ## Install
 
@@ -54,7 +58,9 @@ Then load the output for your browser:
   Add-on** → `packages/extension/.output/firefox-mv3/manifest.json`.
 
 `gitlab.com` and `github.com` work immediately; for a self-hosted instance, open
-a `.bpmn` file there and click the extension's toolbar icon to grant access.
+a `.bpmn` file there and click the extension's toolbar icon to grant access. For
+**private github.com repositories**, also add a read-only API token in the
+options page (see **Private repos** above).
 
 > Full per-browser instructions (permanent Firefox installs, signing, dev mode)
 > are in [CONTRIBUTING.md](./CONTRIBUTING.md#loading-the-extension-unpacked).

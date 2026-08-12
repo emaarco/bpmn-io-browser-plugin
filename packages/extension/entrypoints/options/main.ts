@@ -12,6 +12,7 @@ import {
   type SelfHostedHost,
 } from '../../src/hosts/storage'
 import { registerHost, unregisterHost } from '../../src/hosts/registration'
+import { getGithubToken, setGithubToken } from '../../src/net/githubToken'
 
 const app = document.querySelector<HTMLElement>('#app')!
 
@@ -46,6 +47,51 @@ originInput.addEventListener('keydown', (event) => {
   if ((event as KeyboardEvent).key === 'Enter') void onAdd()
 })
 
+// --- GitHub API token (private repos on github.com) ---------------------------
+
+const tokenInput = h('input', {
+  type: 'password',
+  class: 'input token',
+  placeholder: 'github_pat_… (leave empty to remove)',
+  autocomplete: 'off',
+  spellcheck: 'false',
+}) as HTMLInputElement
+const tokenSaveButton = h('button', { class: 'btn primary', type: 'button', text: 'Save token' })
+const tokenStatus = h('p', { class: 'status' })
+
+app.append(
+  h('h1', { text: 'GitHub API token' }),
+  h('p', { class: 'intro' }, [
+    document.createTextNode(
+      'Only needed for private repositories on github.com — their diff metadata comes from ',
+    ),
+    h('code', { text: 'api.github.com' }),
+    document.createTextNode(
+      ', a separate origin your github.com login cookie does not cover (public repos, GitLab and GitHub Enterprise work without it). A token also lifts the 60-requests/hour anonymous rate limit. Create a fine-grained token with ',
+    ),
+    h('strong', { text: 'Contents: Read-only' }),
+    document.createTextNode(' (add '),
+    h('strong', { text: 'Pull requests: Read-only' }),
+    document.createTextNode(' for PRs) at '),
+    h('a', {
+      href: 'https://github.com/settings/personal-access-tokens/new',
+      target: '_blank',
+      rel: 'noreferrer',
+      text: 'github.com/settings/personal-access-tokens',
+    }),
+    document.createTextNode(
+      '. It is stored only in this browser and sent only to api.github.com.',
+    ),
+  ]),
+  h('div', { class: 'card' }, [h('div', { class: 'row' }, [tokenInput, tokenSaveButton]), tokenStatus]),
+)
+
+tokenSaveButton.addEventListener('click', () => void onSaveToken())
+tokenInput.addEventListener('keydown', (event) => {
+  if ((event as KeyboardEvent).key === 'Enter') void onSaveToken()
+})
+
+void loadToken()
 void refresh()
 
 async function onAdd(): Promise<void> {
@@ -108,4 +154,22 @@ function badgeLabel(type: HostType | undefined): string {
 function setStatus(text: string, kind: 'error' | 'ok'): void {
   status.textContent = text
   status.className = `status ${kind}`
+}
+
+async function loadToken(): Promise<void> {
+  tokenInput.value = await getGithubToken()
+}
+
+async function onSaveToken(): Promise<void> {
+  try {
+    await setGithubToken(tokenInput.value)
+  } catch (err) {
+    return setTokenStatus(`Could not save token: ${errorMessage(err)}`, 'error')
+  }
+  setTokenStatus(tokenInput.value.trim() ? 'Token saved.' : 'Token removed.', 'ok')
+}
+
+function setTokenStatus(text: string, kind: 'error' | 'ok'): void {
+  tokenStatus.textContent = text
+  tokenStatus.className = `status ${kind}`
 }
