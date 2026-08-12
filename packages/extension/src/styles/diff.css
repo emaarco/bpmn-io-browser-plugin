@@ -9,7 +9,7 @@
    single square border, instead of naked tabs floating above a separate diagram
    card. `overflow: hidden` keeps the square corners crisp over the canvas. */
 .git-diagram-wrap.git-diagram-di-root {
-  margin: 8px 0;
+  margin: 0;
   border: 1px solid var(--border);
   overflow: hidden;
 }
