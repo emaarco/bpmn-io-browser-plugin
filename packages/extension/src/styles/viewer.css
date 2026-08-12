@@ -21,9 +21,17 @@
   --bg: var(--bgColor-default, var(--color-canvas-default, #ffffff));
   --border: var(--borderColor-default, var(--color-border-default, #d0d7de));
   --btn-bg: var(--bgColor-muted, var(--color-canvas-subtle, #f6f8fa));
-  --btn-hover: var(--bgColor-emphasis, var(--color-neutral-muted, rgba(129, 139, 152, 0.12)));
+  /* Subtle neutral hover — NOT --bgColor-emphasis, which is Primer's solid
+     near-black emphasis surface and turned the hovered tab black with unreadable
+     dark text. --control-bgColor-hover is the host's real button-hover token. */
+  --btn-hover: var(
+    --control-bgColor-hover,
+    var(--bgColor-neutral-muted, var(--color-neutral-muted, rgba(129, 139, 152, 0.12)))
+  );
   --tab-active: var(--fgColor-accent, var(--color-accent-fg, #0969da));
   --canvas-bg: var(--bgColor-default, var(--color-canvas-default, #ffffff));
+  /* Match the host's rounded buttons/frames (Primer 6px; fallback for GitLab). */
+  --radius: var(--borderRadius-medium, 6px);
 
   /* Additive: our container sits in the normal flow above the code, so it just
      needs a little breathing room from the file header and the code below. */
@@ -43,7 +51,10 @@
   --bg: var(--bgColor-default, var(--color-canvas-default, #0d1117));
   --border: var(--borderColor-default, var(--color-border-default, #3d444d));
   --btn-bg: var(--bgColor-muted, var(--color-canvas-subtle, #21262d));
-  --btn-hover: var(--bgColor-emphasis, var(--color-neutral-muted, rgba(99, 110, 123, 0.2)));
+  --btn-hover: var(
+    --control-bgColor-hover,
+    var(--bgColor-neutral-muted, var(--color-neutral-muted, rgba(99, 110, 123, 0.2)))
+  );
   --tab-active: var(--fgColor-accent, var(--color-accent-fg, #4493f8));
   --canvas-bg: var(--bgColor-default, var(--color-canvas-default, #0d1117));
 }
@@ -60,7 +71,7 @@
 .git-diagram-tabs {
   display: inline-flex;
   border: 1px solid var(--border);
-  border-radius: 0;
+  border-radius: var(--radius);
   overflow: hidden;
 }
 
@@ -99,7 +110,7 @@
   gap: 4px;
   padding: 4px;
   border: 1px solid var(--border);
-  border-radius: 0;
+  border-radius: var(--radius);
   background: var(--btn-bg);
 }
 
@@ -110,7 +121,7 @@
   line-height: 1;
   font-size: 13px;
   border: 1px solid var(--border);
-  border-radius: 0;
+  border-radius: var(--radius);
   background: var(--btn-bg);
   color: var(--fg);
   padding: 0 8px;
@@ -132,7 +143,7 @@
   height: 600px;
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: 0;
+  border-radius: var(--radius);
   background: var(--canvas-bg);
   overflow: hidden;
 }
