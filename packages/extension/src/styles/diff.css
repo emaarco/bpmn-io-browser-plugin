@@ -5,19 +5,24 @@
  * components defined there. Only diff-specific layout + marker colours live here.
  */
 
-/* Sit flush inside the host's file box: no outer margin, and a hairline below to
-   divide our panel from the host's code diff. This makes header → tabs → diagram
-   → code read as sections of one container rather than a floating card in a gap. */
+/* One self-contained box: the toolbar (Plain/Diff tabs) and the diagram share a
+   single square border, instead of naked tabs floating above a separate diagram
+   card. `overflow: hidden` keeps the square corners crisp over the canvas. */
 .git-diagram-wrap.git-diagram-di-root {
-  margin: 0;
+  margin: 8px 0;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+/* Divider between the toolbar and the diagram, inside the shared container. */
+.git-diagram-di-root .git-diagram-toolbar {
   border-bottom: 1px solid var(--border);
 }
 
-/* Full-width band, not a rounded card: only a top hairline separating it from the
-   toolbar above (the root's border-bottom closes it off from the code below). */
+/* The diagram fills the container; the frame is the root border above, so the
+   grid itself carries no border of its own. */
 .git-diagram-di-grid {
   display: flex;
-  border-top: 1px solid var(--border);
   overflow: hidden;
   background: var(--bg);
 }
