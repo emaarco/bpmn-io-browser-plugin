@@ -11,6 +11,7 @@
 .git-diagram-wrap.git-diagram-di-root {
   margin: 0;
   border: 1px solid var(--border);
+  border-radius: var(--radius);
   overflow: hidden;
 }
 
@@ -31,7 +32,7 @@
 .git-diagram-wrap.git-diagram-error {
   padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: 0;
+  border-radius: var(--radius);
   background: var(--bg);
   color: var(--fg);
   font-size: 12px;
@@ -96,7 +97,7 @@
   z-index: 10;
   background: var(--btn-bg);
   border: 1px solid var(--border);
-  border-radius: 0;
+  border-radius: var(--radius);
   padding: 6px 8px;
   font-size: 12px;
 }
@@ -149,7 +150,7 @@
   font-size: 12px;
   padding: 2px 8px;
   border: 1px solid var(--border);
-  border-radius: 0;
+  border-radius: var(--radius);
   background: var(--btn-bg);
   color: var(--fg);
 }
