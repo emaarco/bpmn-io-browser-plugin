@@ -19,6 +19,33 @@
   background: var(--bg);
 }
 
+/* Notice shown when the diff metadata could not be loaded (see diffError.ts). */
+.git-diagram-wrap.git-diagram-error {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.git-diagram-error-title {
+  font-weight: 600;
+}
+
+.git-diagram-error-hint {
+  margin-top: 2px;
+}
+
+.git-diagram-error-detail {
+  margin-top: 6px;
+  opacity: 0.55;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  word-break: break-all;
+}
+
 .git-diagram-di-pane {
   position: relative;
   flex: 1 1 0;

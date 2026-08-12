@@ -10,3 +10,6 @@ export const HOST_TAG = 'bpmn-io-browser-plugin'
 
 /** Diff panel shadow host — mounted by `runDiff` above each changed file's code. */
 export const DIFF_PANEL_TAG = 'git-diagram-diff'
+
+/** Diff error notice shadow host — mounted by `runDiff` when metadata fails to load. */
+export const DIFF_ERROR_TAG = 'git-diagram-diff-error'

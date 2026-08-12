@@ -11,8 +11,14 @@ import type { ContentScriptContext } from 'wxt/utils/content-script-context'
 import { injectShadowStyles } from './shadowStyles'
 import { DIFF_SHADOW_CSS } from '../styles/bundledCss'
 import { mountDiffView, type DiffViewHandle } from '../diff/diffView'
-import type { DiffFileBlock, DiffPlatform } from '../diff/diffPlatform'
-import { DIFF_PANEL_TAG } from './tags'
+import { mountDiffError, type DiffErrorHandle } from '../diff/diffError'
+import {
+  DiffDataError,
+  type DiffFileBlock,
+  type DiffPanelSlot,
+  type DiffPlatform,
+} from '../diff/diffPlatform'
+import { DIFF_ERROR_TAG, DIFF_PANEL_TAG } from './tags'
 
 const DEBOUNCE_MS = 300
 const COLLAPSE_DEBOUNCE_MS = 150
@@ -22,6 +28,7 @@ export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void
   // against the DOM (does this file root already contain our panel?), not against
   // a code element's identity, which GitHub re-creates when Viewed is toggled.
   const mounting = new WeakSet<Element>()
+  const erroring = new WeakSet<Element>()
 
   async function run(): Promise<void> {
     if (!platform.pageKey(location)) return
@@ -29,15 +36,46 @@ export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void
     try {
       blocks = await platform.collect(location, document)
     } catch (err) {
-      console.error('[bpmn-io-browser-plugin] failed to load diff data', err)
+      if (err instanceof DiffDataError) showErrors(err)
+      else console.error('[bpmn-io-browser-plugin] failed to load diff data', err)
       return
     }
     for (const block of blocks) {
       if (mounting.has(block.fileRoot)) continue
       if (block.fileRoot.querySelector(DIFF_PANEL_TAG)) continue
+      // A retry finally succeeded — drop any error notice we mounted earlier.
+      block.fileRoot.querySelector(DIFF_ERROR_TAG)?.remove()
       mounting.add(block.fileRoot)
       void mount(block).finally(() => mounting.delete(block.fileRoot))
     }
+  }
+
+  /** Surface a metadata-load failure as a notice above each affected file's code. */
+  function showErrors(err: DiffDataError): void {
+    for (const slot of err.slots) {
+      if (erroring.has(slot.fileRoot)) continue
+      // Never cover a real panel, and never stack a second notice.
+      if (slot.fileRoot.querySelector(DIFF_PANEL_TAG)) continue
+      if (slot.fileRoot.querySelector(DIFF_ERROR_TAG)) continue
+      erroring.add(slot.fileRoot)
+      void mountError(slot, err).finally(() => erroring.delete(slot.fileRoot))
+    }
+  }
+
+  async function mountError(slot: DiffPanelSlot, err: DiffDataError): Promise<void> {
+    const ui = await createShadowRootUi<DiffErrorHandle>(ctx, {
+      name: DIFF_ERROR_TAG,
+      position: 'inline',
+      anchor: slot.anchor,
+      append: slot.append,
+      onMount: (container, shadow) => {
+        injectShadowStyles(shadow, DIFF_SHADOW_CSS)
+        return mountDiffError(container, { message: err.message, hint: err.hint })
+      },
+      onRemove: (handle) => handle?.destroy(),
+    })
+    ui.mount()
+    ctx.onInvalidated(() => ui.remove())
   }
 
   async function mount(block: DiffFileBlock): Promise<void> {
