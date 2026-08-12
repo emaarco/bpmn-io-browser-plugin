@@ -13,4 +13,5 @@ export interface FetchTextRequest {
 
 export type BackgroundRequest = FetchTextRequest
 
-export type FetchTextResponse = { ok: true; text: string } | { ok: false; error: string }
+export type FetchTextResponse =
+  { ok: true; text: string } | { ok: false; error: string; status?: number }

@@ -90,7 +90,8 @@ async function fetchTextForContent(url: string): Promise<FetchTextResponse> {
       credentials: 'include',
       headers: await githubApiAuthHeaders(url),
     })
-    if (!response.ok) return { ok: false, error: `HTTP ${response.status} for ${url}` }
+    if (!response.ok)
+      return { ok: false, error: `HTTP ${response.status} for ${url}`, status: response.status }
     return { ok: true, text: await response.text() }
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) }

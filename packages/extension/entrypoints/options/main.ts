@@ -52,7 +52,7 @@ originInput.addEventListener('keydown', (event) => {
 const tokenInput = h('input', {
   type: 'password',
   class: 'input token',
-  placeholder: 'github_pat_… (leave empty to remove)',
+  placeholder: 'ghp_… or github_pat_… (leave empty to remove)',
   autocomplete: 'off',
   spellcheck: 'false',
 }) as HTMLInputElement
@@ -67,23 +67,52 @@ app.append(
     ),
     h('code', { text: 'api.github.com' }),
     document.createTextNode(
-      ', a separate origin your github.com login cookie does not cover (public repos, GitLab and GitHub Enterprise work without it). A token also lifts the 60-requests/hour anonymous rate limit. Create a fine-grained token with ',
+      ', a separate origin your github.com login cookie does not cover (public repos, GitLab and GitHub Enterprise work without it). A token also lifts the 60-requests/hour anonymous rate limit.',
     ),
-    h('strong', { text: 'Contents: Read-only' }),
-    document.createTextNode(' (add '),
-    h('strong', { text: 'Pull requests: Read-only' }),
-    document.createTextNode(' for PRs) at '),
+  ]),
+  h('p', { class: 'intro' }, [
+    document.createTextNode('To cover '),
+    h('strong', { text: 'every repo you can access' }),
+    document.createTextNode(
+      ' — your own and all your organisations — the simplest choice is a classic token with the ',
+    ),
+    h('strong', { text: 'repo' }),
+    document.createTextNode(' scope, created at '),
+    h('a', {
+      href: 'https://github.com/settings/tokens/new?scopes=repo&description=bpmn-io-browser-plugin',
+      target: '_blank',
+      rel: 'noreferrer',
+      text: 'github.com/settings/tokens',
+    }),
+    document.createTextNode(
+      '. If an organisation uses SSO, click "Configure SSO" on the token afterwards and authorise it for that organisation, or its private repos stay invisible.',
+    ),
+  ]),
+  h('p', { class: 'intro' }, [
+    document.createTextNode('Prefer to limit access? A '),
     h('a', {
       href: 'https://github.com/settings/personal-access-tokens/new',
       target: '_blank',
       rel: 'noreferrer',
-      text: 'github.com/settings/personal-access-tokens',
+      text: 'fine-grained token',
     }),
+    document.createTextNode(' with '),
+    h('strong', { text: 'Contents: Read-only' }),
+    document.createTextNode(' (add '),
+    h('strong', { text: 'Pull requests: Read-only' }),
     document.createTextNode(
-      '. It is stored only in this browser and sent only to api.github.com.',
+      ' for PRs) works too, but only for the single account or organisation you pick as its resource owner.',
     ),
   ]),
-  h('div', { class: 'card' }, [h('div', { class: 'row' }, [tokenInput, tokenSaveButton]), tokenStatus]),
+  h('p', { class: 'intro' }, [
+    document.createTextNode('The token is stored only in this browser and sent only to '),
+    h('code', { text: 'api.github.com' }),
+    document.createTextNode('.'),
+  ]),
+  h('div', { class: 'card' }, [
+    h('div', { class: 'row' }, [tokenInput, tokenSaveButton]),
+    tokenStatus,
+  ]),
 )
 
 tokenSaveButton.addEventListener('click', () => void onSaveToken())
