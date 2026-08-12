@@ -56,6 +56,24 @@ h1 {
   min-width: 220px;
 }
 
+.input.token {
+  flex: 1;
+  min-width: 260px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.intro code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  background: #eff1f3;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.intro a {
+  color: #0969da;
+}
+
 .btn {
   height: 34px;
   padding: 0 14px;
