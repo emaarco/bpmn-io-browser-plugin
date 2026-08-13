@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@bpmn-io-browser-plugin/core": "*",
-    "bpmn-js": "18.22.1",
+    "bpmn-js": "18.23.0",
     "dmn-js": "17.10.1",
     "webext-permission-toggle": "7.0.1"
   },
