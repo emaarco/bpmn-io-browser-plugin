@@ -90,7 +90,7 @@ describe('createGithubDiffPlatform — actionable error', () => {
     expect(err.slots).toHaveLength(1)
     expect(err.slots[0].fileRoot).toBeInstanceOf(HTMLElement)
     expect(err.hint).toMatch(/private repository/i)
-    expect(err.hint).toMatch(/token/i)
+    expect(err.hint).toMatch(/GitHub App/i)
   })
 
   it('maps 403 to a rate-limit / SSO hint', async () => {
@@ -99,6 +99,6 @@ describe('createGithubDiffPlatform — actionable error', () => {
     const err = await createGithubDiffPlatform(info, load)
       .collect(location, doc)
       .catch((e) => e)
-    expect(err.hint).toMatch(/rate limit|SSO/i)
+    expect(err.hint).toMatch(/rate limit|SSO|install/i)
   })
 })

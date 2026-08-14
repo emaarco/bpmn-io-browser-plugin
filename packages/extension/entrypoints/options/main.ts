@@ -12,7 +12,20 @@ import {
   type SelfHostedHost,
 } from '../../src/hosts/storage'
 import { registerHost, unregisterHost } from '../../src/hosts/registration'
-import { getGithubToken, setGithubToken } from '../../src/net/githubToken'
+import {
+  getGithubLogin,
+  getGithubToken,
+  setGithubLogin,
+  setGithubToken,
+} from '../../src/net/githubTokenStore'
+import {
+  DeviceFlowError,
+  GITHUB_APP_INSTALL_URL,
+  fetchViewerLogin,
+  pollForToken,
+  requestDeviceCode,
+  type DeviceCode,
+} from '../../src/net/githubAuth'
 
 const app = document.querySelector<HTMLElement>('#app')!
 
@@ -47,80 +60,40 @@ originInput.addEventListener('keydown', (event) => {
   if ((event as KeyboardEvent).key === 'Enter') void onAdd()
 })
 
-// --- GitHub API token (private repos on github.com) ---------------------------
+// --- GitHub access for private repos (GitHub App, device flow) ----------------
 
-const tokenInput = h('input', {
-  type: 'password',
-  class: 'input token',
-  placeholder: 'ghp_… or github_pat_… (leave empty to remove)',
-  autocomplete: 'off',
-  spellcheck: 'false',
-}) as HTMLInputElement
-const tokenSaveButton = h('button', { class: 'btn primary', type: 'button', text: 'Save token' })
-const tokenStatus = h('p', { class: 'status' })
+const githubAuthBody = h('div', { class: 'auth-body' })
+const githubAuthStatus = h('p', { class: 'status' })
 
 app.append(
-  h('h1', { text: 'GitHub API token' }),
+  h('h1', { text: 'GitHub access (private repos)' }),
   h('p', { class: 'intro' }, [
     document.createTextNode(
       'Only needed for private repositories on github.com — their diff metadata comes from ',
     ),
     h('code', { text: 'api.github.com' }),
     document.createTextNode(
-      ', a separate origin your github.com login cookie does not cover (public repos, GitLab and GitHub Enterprise work without it). A token also lifts the 60-requests/hour anonymous rate limit.',
+      ', a separate origin your github.com login cookie does not cover (public repos, GitLab and GitHub Enterprise work without it).',
     ),
   ]),
   h('p', { class: 'intro' }, [
-    document.createTextNode('To cover '),
-    h('strong', { text: 'every repo you can access' }),
-    document.createTextNode(
-      ' — your own and all your organisations — the simplest choice is a classic token with the ',
-    ),
-    h('strong', { text: 'repo' }),
-    document.createTextNode(' scope, created at '),
+    document.createTextNode('First '),
     h('a', {
-      href: 'https://github.com/settings/tokens/new?scopes=repo&description=bpmn-io-browser-plugin',
+      href: GITHUB_APP_INSTALL_URL,
       target: '_blank',
       rel: 'noreferrer',
-      text: 'github.com/settings/tokens',
+      text: 'install the GitHub App',
     }),
     document.createTextNode(
-      '. If an organisation uses SSO, click "Configure SSO" on the token afterwards and authorise it for that organisation, or its private repos stay invisible.',
+      ' on the accounts and repositories it may read, then connect below. The extension only ever gets access to the repos you install it on, and the token is stored in this browser and sent only to ',
     ),
-  ]),
-  h('p', { class: 'intro' }, [
-    document.createTextNode('Prefer to limit access? A '),
-    h('a', {
-      href: 'https://github.com/settings/personal-access-tokens/new',
-      target: '_blank',
-      rel: 'noreferrer',
-      text: 'fine-grained token',
-    }),
-    document.createTextNode(' with '),
-    h('strong', { text: 'Contents: Read-only' }),
-    document.createTextNode(' (add '),
-    h('strong', { text: 'Pull requests: Read-only' }),
-    document.createTextNode(
-      ' for PRs) works too, but only for the single account or organisation you pick as its resource owner.',
-    ),
-  ]),
-  h('p', { class: 'intro' }, [
-    document.createTextNode('The token is stored only in this browser and sent only to '),
     h('code', { text: 'api.github.com' }),
     document.createTextNode('.'),
   ]),
-  h('div', { class: 'card' }, [
-    h('div', { class: 'row' }, [tokenInput, tokenSaveButton]),
-    tokenStatus,
-  ]),
+  h('div', { class: 'card' }, [githubAuthBody, githubAuthStatus]),
 )
 
-tokenSaveButton.addEventListener('click', () => void onSaveToken())
-tokenInput.addEventListener('keydown', (event) => {
-  if ((event as KeyboardEvent).key === 'Enter') void onSaveToken()
-})
-
-void loadToken()
+void renderGithubAuth()
 void refresh()
 
 async function onAdd(): Promise<void> {
@@ -185,20 +158,79 @@ function setStatus(text: string, kind: 'error' | 'ok'): void {
   status.className = `status ${kind}`
 }
 
-async function loadToken(): Promise<void> {
-  tokenInput.value = await getGithubToken()
-}
-
-async function onSaveToken(): Promise<void> {
-  try {
-    await setGithubToken(tokenInput.value)
-  } catch (err) {
-    return setTokenStatus(`Could not save token: ${errorMessage(err)}`, 'error')
+/** Draw the connect/disconnect card from the currently stored token. */
+async function renderGithubAuth(): Promise<void> {
+  const [token, login] = await Promise.all([getGithubToken(), getGithubLogin()])
+  if (token) {
+    const disconnect = h('button', { class: 'btn danger', type: 'button', text: 'Disconnect' })
+    disconnect.addEventListener('click', () => void onDisconnect())
+    githubAuthBody.replaceChildren(
+      h('div', { class: 'row auth-row' }, [
+        h('span', { class: 'auth-connected', text: login ? `Connected as @${login}` : 'Connected' }),
+        disconnect,
+      ]),
+    )
+    return
   }
-  setTokenStatus(tokenInput.value.trim() ? 'Token saved.' : 'Token removed.', 'ok')
+  const connect = h('button', { class: 'btn primary', type: 'button', text: 'Connect GitHub' })
+  connect.addEventListener('click', () => void onConnect())
+  githubAuthBody.replaceChildren(h('div', { class: 'row auth-row' }, [connect]))
 }
 
-function setTokenStatus(text: string, kind: 'error' | 'ok'): void {
-  tokenStatus.textContent = text
-  tokenStatus.className = `status ${kind}`
+/** Run the device flow end to end: show the code, wait for the user, store the token. */
+async function onConnect(): Promise<void> {
+  let code: DeviceCode
+  try {
+    code = await requestDeviceCode()
+  } catch (err) {
+    return setGithubAuthStatus(`Could not start authorisation: ${authError(err)}`, 'error')
+  }
+
+  showUserCode(code)
+  setGithubAuthStatus('Waiting for you to authorise the code on github.com…', 'ok')
+  await browser.tabs.create({ url: code.verificationUri }).catch(() => undefined)
+
+  try {
+    const token = await pollForToken(code)
+    await setGithubToken(token)
+    await setGithubLogin(await fetchViewerLogin(token))
+    setGithubAuthStatus('Connected.', 'ok')
+  } catch (err) {
+    setGithubAuthStatus(authError(err), 'error')
+  }
+  await renderGithubAuth()
+}
+
+async function onDisconnect(): Promise<void> {
+  await setGithubToken('')
+  await setGithubLogin('')
+  setGithubAuthStatus('Disconnected.', 'ok')
+  await renderGithubAuth()
+}
+
+/** Show the one-time user code prominently while the flow is in progress. */
+function showUserCode(code: DeviceCode): void {
+  githubAuthBody.replaceChildren(
+    h('p', { class: 'auth-hint' }, [
+      document.createTextNode('Enter this code at '),
+      h('a', {
+        href: code.verificationUri,
+        target: '_blank',
+        rel: 'noreferrer',
+        text: 'github.com/login/device',
+      }),
+      document.createTextNode(' (a new tab should open automatically):'),
+    ]),
+    h('div', { class: 'user-code', text: code.userCode }),
+  )
+}
+
+function setGithubAuthStatus(text: string, kind: 'error' | 'ok'): void {
+  githubAuthStatus.textContent = text
+  githubAuthStatus.className = `status ${kind}`
+}
+
+/** Device-flow errors already carry a user-facing message; fall back for the rest. */
+function authError(err: unknown): string {
+  return err instanceof DeviceFlowError ? err.message : errorMessage(err)
 }

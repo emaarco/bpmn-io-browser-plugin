@@ -5,7 +5,7 @@ import type { BackgroundRequest, FetchTextResponse } from '../src/net/messages'
 import { registerHost, registerSavedHosts, unregisterHost } from '../src/hosts/registration'
 import { addHost, getSavedHosts, removeHost } from '../src/hosts/storage'
 import { isSupportedUrl, originToPattern, patternToOrigin } from '../src/hosts/detect'
-import { getGithubToken, tokenTargetsGithubApi } from '../src/net/githubToken'
+import { getGithubToken, tokenTargetsGithubApi } from '../src/net/githubTokenStore'
 
 export default defineBackground(() => {
   // Re-register content scripts for user-added self-hosted instances on startup.
@@ -100,7 +100,7 @@ async function fetchTextForContent(url: string): Promise<FetchTextResponse> {
 
 /**
  * Authorization header for a request, but only for github.com's REST API — the
- * one host the page cookie can't reach (see {@link githubToken}). Everything else
+ * one host the page cookie can't reach (see {@link githubTokenStore}). Everything else
  * (raw content, GitLab, GitHub Enterprise) is same-origin and cookie-authed, and
  * must never receive the token.
  */
