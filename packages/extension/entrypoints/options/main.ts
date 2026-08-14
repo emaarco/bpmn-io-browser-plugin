@@ -210,6 +210,13 @@ async function onDisconnect(): Promise<void> {
 
 /** Show the one-time user code prominently while the flow is in progress. */
 function showUserCode(code: DeviceCode): void {
+  const copyButton = h('button', {
+    class: 'btn copy',
+    type: 'button',
+    text: 'Copy',
+    title: 'Copy the code to your clipboard',
+    onClick: () => copyUserCode(code.userCode, copyButton),
+  })
   githubAuthBody.replaceChildren(
     h('p', { class: 'auth-hint' }, [
       document.createTextNode('Enter this code at '),
@@ -221,8 +228,28 @@ function showUserCode(code: DeviceCode): void {
       }),
       document.createTextNode(' (a new tab should open automatically):'),
     ]),
-    h('div', { class: 'user-code', text: code.userCode }),
+    h('div', { class: 'user-code-row' }, [
+      h('div', { class: 'user-code', text: code.userCode }),
+      copyButton,
+    ]),
   )
+}
+
+/** Copy the code to the clipboard and give brief visual feedback on the button. */
+async function copyUserCode(userCode: string, button: HTMLButtonElement): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(userCode)
+  } catch {
+    // Clipboard may be blocked (permissions/insecure context); the code stays selectable.
+    return
+  }
+  const original = button.textContent
+  button.textContent = 'Copied ✓'
+  button.classList.add('copied')
+  window.setTimeout(() => {
+    button.textContent = original
+    button.classList.remove('copied')
+  }, 1500)
 }
 
 function setGithubAuthStatus(text: string, kind: 'error' | 'ok'): void {
