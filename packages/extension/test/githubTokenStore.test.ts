@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { tokenTargetsGithubApi } from '../src/net/githubToken'
+import { tokenTargetsGithubApi } from '../src/net/githubTokenStore'
 
-describe('tokenTargetsGithubApi (where the PAT may be sent)', () => {
+describe('tokenTargetsGithubApi (where the token may be sent)', () => {
   it('is true only for the api.github.com host', () => {
     expect(tokenTargetsGithubApi('https://api.github.com/repos/o/r/pulls/1')).toBe(true)
   })

@@ -19,8 +19,8 @@ interface DiffInfo {
  * After a failed metadata fetch, keep the failure cached this long before a fresh
  * attempt is allowed. The diff driver re-runs on every debounced DOM mutation, so
  * without this a private-repo 404 or a rate-limit 403 would re-fire the same
- * failing api.github.com calls on every scroll — amplifying the very rate limit a
- * token is meant to lift.
+ * failing api.github.com calls on every scroll — amplifying the very rate limit
+ * that connecting the GitHub App is meant to lift.
  */
 const RETRY_FAILED_AFTER_MS = 60_000
 
@@ -76,24 +76,24 @@ const slotOf = (box: FileBox): DiffPanelSlot => ({
 
 /**
  * Turn a metadata-fetch failure into a one-line, actionable hint. The
- * token-specific advice only applies to github.com (where the REST API lives on
- * the cookie-less api.github.com origin); GitHub Enterprise is same-origin and
- * cookie-authed, so a token would not help there.
+ * GitHub-App advice only applies to github.com (where the REST API lives on the
+ * cookie-less api.github.com origin); GitHub Enterprise is same-origin and
+ * cookie-authed, so connecting the app would not help there.
  */
 function apiErrorHint(location: Location, err: unknown): string {
   const status = err instanceof FetchError ? err.status : undefined
   const onGithubCom = location.hostname === 'github.com'
-  const addToken = onGithubCom
-    ? ' Add a GitHub token (classic, "repo" scope) in the extension options — and authorise it for the organisation if it uses SSO.'
+  const connectApp = onGithubCom
+    ? ' Connect the GitHub App in the extension options and install it on this repository (authorise it for the organisation if it uses SSO).'
     : ''
   switch (status) {
     case 401:
-      return `Your GitHub token looks invalid or expired.${onGithubCom ? ' Update it in the extension options.' : ''}`
+      return `Your GitHub connection looks expired or revoked.${onGithubCom ? ' Reconnect the GitHub App in the extension options.' : ''}`
     case 403:
-      return `GitHub returned 403 — the anonymous rate limit is exhausted, or the token is not authorised for this organisation (SSO).${addToken}`
+      return `GitHub returned 403 — the anonymous rate limit is exhausted, or the app is not authorised for this organisation (SSO).${connectApp}`
     case 404:
-      return `This looks like a private repository the page login cannot reach from api.github.com.${addToken}`
+      return `This looks like a private repository the page login cannot reach from api.github.com.${connectApp}`
     default:
-      return `Could not load the diff metadata${onGithubCom ? ' from api.github.com' : ''}.${addToken}`
+      return `Could not load the diff metadata${onGithubCom ? ' from api.github.com' : ''}.${connectApp}`
   }
 }

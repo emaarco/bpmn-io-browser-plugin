@@ -25,9 +25,12 @@ leaves your browser:
 
 - the list of self-hosted instance domains you add, so the extension knows where
   to activate;
-- an optional GitHub API token you enter, used only for private repositories on
-  github.com. It is sent **only** to `api.github.com` (never to any other host)
-  to authenticate the diff-metadata requests, and only if you choose to set one.
+- an optional GitHub access token, used only for private repositories on
+  github.com. You obtain it by installing the GitHub App and connecting once from
+  the options page (via GitHub's device flow — no token to paste by hand); the
+  extension never sees a client secret. It is sent **only** to `api.github.com`
+  (never to any other host) to authenticate the diff-metadata requests, and only
+  if you choose to connect. Disconnecting in the options page removes it.
 
 ## Permissions
 
