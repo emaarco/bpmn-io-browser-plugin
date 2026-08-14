@@ -1,23 +1,40 @@
 version: 2
 updates:
+  # npm — minor + patch grouped into one PR; each major lands individually
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+    labels:
+      - dependencies
     open-pull-requests-limit: 10
-    versioning-strategy: increase
+    cooldown:
+      default-days: 5
+      semver-major-days: 14
+      semver-minor-days: 5
+      semver-patch-days: 3
     groups:
-      dev-dependencies:
-        dependency-type: development
+      npm-minor-patch:
+        applies-to: version-updates
+        patterns: ['*']
         update-types: [minor, patch]
-      production-dependencies:
-        dependency-type: production
-        update-types: [minor, patch]
+      npm-security:
+        applies-to: security-updates
+        patterns: ['*']
 
+  # github-actions — SHA-pinned, so grouping everything (incl. majors) is safe
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    labels:
+      - dependencies
+    cooldown:
+      default-days: 5
     groups:
       github-actions:
+        applies-to: version-updates
+        patterns: ['*']
+      github-actions-security:
+        applies-to: security-updates
         patterns: ['*']
