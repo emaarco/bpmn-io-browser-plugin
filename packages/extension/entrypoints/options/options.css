@@ -76,7 +76,14 @@ h1 {
   color: #0969da;
 }
 
+.user-code-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .user-code {
+  flex: 1;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 28px;
   letter-spacing: 4px;
@@ -132,10 +139,26 @@ h1 {
   border-color: #d0d7de;
 }
 
+.btn.copy {
+  flex: none;
+  align-self: center;
+}
+
+.btn.copy.copied {
+  color: #1a7f37;
+  border-color: #1a7f37;
+}
+
 .status {
   min-height: 18px;
   font-size: 13px;
   margin: 10px 0 0;
+}
+
+/* Reserve no space while there is no message, so cards stay tight. */
+.status:empty {
+  min-height: 0;
+  margin: 0;
 }
 
 .status.error {
