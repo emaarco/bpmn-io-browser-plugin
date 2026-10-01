@@ -7,7 +7,7 @@
 > inline** on GitLab and GitHub — and shows a **visual before/after diff** in
 > merge and pull requests.
 
-![A BPMN diagram rendered inline above the source of a .bpmn file on GitHub](docs/screenshots/inline-viewer.png)
+![A BPMN diagram rendered inline above the source of a .bpmn file on GitHub](assets/inline-viewer.png)
 
 ## Why
 
