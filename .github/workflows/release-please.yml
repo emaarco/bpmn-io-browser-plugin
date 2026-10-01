@@ -38,7 +38,7 @@ jobs:
 
   # On a real release, build the store bundles and attach them to the GitHub
   # release. Publishing to the Chrome Web Store / AMO / Edge is intentionally a
-  # separate, secret-gated step (see docs/PUBLISHING.md) so this pipeline works
+  # separate, secret-gated step so this pipeline works
   # out of the box without any store credentials.
   package:
     needs: release-please
@@ -103,7 +103,7 @@ jobs:
   # and reviewer-gated via the `store-publishing` environment. A push-triggered
   # release never reaches this job. Each store runs only when its secrets exist,
   # so unconfigured stores (e.g. Edge before you have its keys) are skipped.
-  # Add the credentials to the `store-publishing` environment. See docs/publishing/.
+  # Add the credentials to the `store-publishing` environment.
   publish:
     if: github.event_name == 'workflow_dispatch' && inputs.dry_run == false
     runs-on: ubuntu-latest
