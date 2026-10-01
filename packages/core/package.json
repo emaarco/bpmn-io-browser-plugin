@@ -21,11 +21,11 @@
     "lint:deps": "depcruise src --config .dependency-cruiser.cjs --output-type err"
   },
   "dependencies": {
-    "bpmn-moddle": "10.2.0"
+    "bpmn-moddle": "10.3.1"
   },
   "devDependencies": {
-    "@types/node": "26.6.2",
-    "dependency-cruiser": "18.3.1",
-    "vitest": "5.0.1"
+    "@types/node": "26.6.3",
+    "dependency-cruiser": "18.4.0",
+    "vitest": "5.0.2"
   }
 }
