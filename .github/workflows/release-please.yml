@@ -4,6 +4,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Validate the store bundles without uploading to any store'
+        type: boolean
+        default: true
 
 permissions:
   contents: write
@@ -68,3 +73,98 @@ jobs:
           name: store-bundles
           path: packages/extension/.output/*.zip
           if-no-files-found: error
+
+  # Manual dry run (workflow_dispatch, dry_run checked): build + lint the store
+  # bundles without uploading and without touching the protected environment.
+  verify-bundles:
+    if: github.event_name == 'workflow_dispatch' && inputs.dry_run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build & zip (Chrome + Firefox)
+        run: npm run zip -w @bpmn-io-browser-plugin/extension
+
+      - name: Validate bundles
+        run: |
+          ls -la packages/extension/.output/*.zip
+          npm run lint:webext -w @bpmn-io-browser-plugin/extension
+
+  # Real upload to the stores. Manual only (workflow_dispatch, dry_run unchecked)
+  # and reviewer-gated via the `store-publishing` environment. A push-triggered
+  # release never reaches this job. Each store runs only when its secrets exist,
+  # so unconfigured stores (e.g. Edge before you have its keys) are skipped.
+  # Add the credentials to the `store-publishing` environment. See docs/publishing/.
+  publish:
+    if: github.event_name == 'workflow_dispatch' && inputs.dry_run == false
+    runs-on: ubuntu-latest
+    environment: store-publishing
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build & zip (Chrome + Firefox)
+        run: npm run zip -w @bpmn-io-browser-plugin/extension
+
+      - name: Detect which stores are configured
+        id: stores
+        env:
+          CHROME_ID: ${{ secrets.CHROME_ID }}
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+        run: |
+          {
+            echo "chrome=$([ -n "$CHROME_ID" ] && echo true || echo false)"
+            echo "edge=$([ -n "$EDGE_PRODUCT_ID" ] && echo true || echo false)"
+            echo "firefox=$([ -n "$AMO_JWT_ISSUER" ] && echo true || echo false)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Publish to Chrome Web Store
+        if: steps.stores.outputs.chrome == 'true'
+        env:
+          CHROME_ID: ${{ secrets.CHROME_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+        run: |
+          npx chrome-webstore-upload-cli@3 upload \
+            --source "$(ls packages/extension/.output/*-chrome.zip | head -n1)" \
+            --extension-id "$CHROME_ID" --client-id "$CHROME_CLIENT_ID" \
+            --client-secret "$CHROME_CLIENT_SECRET" --refresh-token "$CHROME_REFRESH_TOKEN" \
+            --auto-publish
+
+      - name: Publish to Edge Add-ons
+        if: steps.stores.outputs.edge == 'true'
+        uses: wdzeng/edge-addon@9881f57720358040d079eaa06a4596dc9c273eb6 # v2.1.1
+        with:
+          product-id: ${{ secrets.EDGE_PRODUCT_ID }}
+          zip-path: packages/extension/.output/*-chrome.zip
+          client-id: ${{ secrets.EDGE_CLIENT_ID }}
+          api-key: ${{ secrets.EDGE_API_KEY }}
+
+      - name: Sign & publish to Firefox AMO
+        if: steps.stores.outputs.firefox == 'true'
+        env:
+          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
+          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
+        run: |
+          npx --package=web-ext@10 web-ext sign --channel listed \
+            --source-dir packages/extension/.output/firefox-mv3 \
+            --api-key "$AMO_JWT_ISSUER" --api-secret "$AMO_JWT_SECRET"

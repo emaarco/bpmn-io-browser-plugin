@@ -48,7 +48,7 @@ export default defineConfig({
   manifest: {
     name: 'bpmn-io-browser-plugin',
     description:
-      'Render BPMN & DMN diagrams inline on GitLab & GitHub and show a visual before/after diff in merge/pull requests. Includes a standalone diagram viewer.',
+      'Render BPMN & DMN diagrams inline on GitLab & GitHub, with a before/after diff in merge/pull requests and a standalone viewer.',
     permissions: ['scripting', 'storage', 'contextMenus', 'activeTab'],
     action: {
       default_icon: {
@@ -67,7 +67,10 @@ export default defineConfig({
     ],
     optional_host_permissions: ['*://*/*'],
     browser_specific_settings: {
-      gecko: { id: 'bpmn-io-browser-plugin@emaarco.github.io' },
+      gecko: {
+        id: 'bpmn-io-browser-plugin@emaarco.github.io',
+        data_collection_permissions: { required: ['none'] },
+      },
     },
   },
 })
