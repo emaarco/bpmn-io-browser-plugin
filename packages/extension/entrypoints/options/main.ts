@@ -21,6 +21,7 @@ import {
 import {
   DeviceFlowError,
   GITHUB_APP_INSTALL_URL,
+  GITHUB_INSTALLED_APPS_URL,
   fetchViewerLogin,
   pollForToken,
   requestDeviceCode,
@@ -64,6 +65,19 @@ originInput.addEventListener('keydown', (event) => {
 
 const githubAuthBody = h('div', { class: 'auth-body' })
 const githubAuthStatus = h('p', { class: 'status' })
+const githubAppRemoval = h('div', { class: 'auth-removal' }, [
+  h('p', {
+    class: 'auth-hint',
+    text: 'Disconnect only removes the access token from this browser. To remove the GitHub App itself, uninstall it and revoke its authorisation in your GitHub settings.',
+  }),
+  h('a', {
+    class: 'btn',
+    href: GITHUB_INSTALLED_APPS_URL,
+    target: '_blank',
+    rel: 'noreferrer',
+    text: 'Uninstall on GitHub',
+  }),
+])
 
 app.append(
   h('h1', { text: 'GitHub access (private repos)' }),
@@ -90,7 +104,7 @@ app.append(
     h('code', { text: 'api.github.com' }),
     document.createTextNode('.'),
   ]),
-  h('div', { class: 'card' }, [githubAuthBody, githubAuthStatus]),
+  h('div', { class: 'card' }, [githubAuthBody, githubAuthStatus, githubAppRemoval]),
 )
 
 void renderGithubAuth()

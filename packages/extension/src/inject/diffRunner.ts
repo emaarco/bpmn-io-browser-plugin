@@ -23,6 +23,8 @@ import { DIFF_ERROR_TAG, DIFF_PANEL_TAG } from './tags'
 const DEBOUNCE_MS = 300
 const COLLAPSE_DEBOUNCE_MS = 150
 
+const wasReplacedByHost = (slot: DiffPanelSlot) => !slot.anchor.isConnected
+
 export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void {
   // File roots with a mount currently in flight. Durable de-duplication is done
   // against the DOM (does this file root already contain our panel?), not against
@@ -41,6 +43,7 @@ export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void
       return
     }
     for (const block of blocks) {
+      if (wasReplacedByHost(block)) continue
       if (mounting.has(block.fileRoot)) continue
       if (block.fileRoot.querySelector(DIFF_PANEL_TAG)) continue
       // A retry finally succeeded — drop any error notice we mounted earlier.
@@ -53,6 +56,7 @@ export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void
   /** Surface a metadata-load failure as a notice above each affected file's code. */
   function showErrors(err: DiffDataError): void {
     for (const slot of err.slots) {
+      if (wasReplacedByHost(slot)) continue
       if (erroring.has(slot.fileRoot)) continue
       // Never cover a real panel, and never stack a second notice.
       if (slot.fileRoot.querySelector(DIFF_PANEL_TAG)) continue

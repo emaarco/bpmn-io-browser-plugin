@@ -9,7 +9,7 @@ export interface MrInfo {
   key: string
 }
 
-export function mrInfo(location: Location): MrInfo | null {
+export function mrInfo(location: Pick<Location, 'pathname'>): MrInfo | null {
   const match = location.pathname.match(/^\/(.+?)\/-\/merge_requests\/(\d+)/)
   if (!match) return null
   const [, projectPath, iid] = match

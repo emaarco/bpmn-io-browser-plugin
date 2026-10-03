@@ -52,7 +52,7 @@ Firefox** (`packages/extension/e2e`). It serves GitHub-shaped fixture pages from
 local server — no live github.com — and asserts the diagram actually renders.
 
 ```bash
-# 1. build the extension in E2E mode (its content scripts also match localhost)
+# 1. build the extension in E2E mode (its view router also matches localhost)
 npm run e2e:build -w @bpmn-io-browser-plugin/extension
 # 2. run the suite (defaults to every browser that's installed)
 npm run test:e2e  -w @bpmn-io-browser-plugin/extension

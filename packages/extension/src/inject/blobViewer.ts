@@ -118,21 +118,27 @@ export function runBlobViewer(ctx: ContentScriptContext, platform: BlobPlatform)
     })
   }
 
-  // The platforms navigate client-side (WXT emits this) and re-render the code
-  // area on their own; a debounced observer catches both, re-syncing whenever our
-  // container is missing OR shows the wrong file.
-  ctx.addEventListener(window, 'wxt:locationchange', sync)
+  const isOutOfSync = () => {
+    const showsDiagramFile = platform.isBlob(location) && detectKind(location.pathname) !== null
+    return showsDiagramFile ? !isCurrent() : mountedPath !== null
+  }
 
+  // The platforms navigate client-side (WXT emits this before the URL changes)
+  // and re-render the code area on their own; a debounced re-check catches both,
+  // re-syncing whenever our container is missing, shows the wrong file, or is
+  // left over on a page without a diagram.
   let scheduled = false
-  const observer = new MutationObserver(() => {
+  const recheck = () => {
     if (scheduled) return
     scheduled = true
     setTimeout(() => {
       scheduled = false
-      if (mounting) return
-      if (platform.isBlob(location) && detectKind(location.pathname) && !isCurrent()) sync()
+      if (!mounting && isOutOfSync()) sync()
     }, RECHECK_DEBOUNCE_MS)
-  })
+  }
+
+  ctx.addEventListener(window, 'wxt:locationchange', recheck)
+  const observer = new MutationObserver(recheck)
   observer.observe(document.body, { childList: true, subtree: true })
 
   ctx.onInvalidated(() => {

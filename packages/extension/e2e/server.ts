@@ -6,8 +6,9 @@
  * It serves three things:
  *   1. The built extension's own pages/assets from `.output/chrome-mv3`
  *      (so the standalone `viewer.html` can be driven over HTTP, extension-free).
- *   2. GitHub-shaped host pages — a blob file view, a pull-request "Files
- *      changed" view and a single-commit diff view — from `fixtures/host-dom/`.
+ *   2. GitHub-shaped host pages — a repository landing page, a blob file view, a
+ *      pull-request "Files changed" view and a single-commit diff view — from
+ *      `fixtures/host-dom/`.
  *   3. The data those pages make the extension fetch: the raw `.bpmn`/`.dmn`
  *      bytes (blob + base/head) and the PR/commit REST metadata the diff adapters
  *      read from `/api/v3` (the non-github.com / Enterprise code path).
@@ -42,6 +43,8 @@ const COMMIT = {
   parentSha: 'dead0000dead0000dead0000dead0000dead0000',
   file: 'flows/order.bpmn',
 } as const
+
+const REPO_HOME = `/${PR.owner}/${PR.repo}`
 
 const MIME: Record<string, string> = {
   '.html': 'text/html; charset=utf-8',
@@ -133,6 +136,9 @@ export function startFixtureServer(port: number): Promise<FixtureServer> {
     }
 
     // GitHub-shaped host pages.
+    if (path === REPO_HOME) {
+      return send(res, 200, MIME['.html']!, readFileSync(join(hostDom, 'repo-home.html')))
+    }
     if (path.includes('/blob/')) {
       return send(res, 200, MIME['.html']!, readFileSync(join(hostDom, 'blob.html')))
     }

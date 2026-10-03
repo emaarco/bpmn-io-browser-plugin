@@ -13,7 +13,7 @@ export interface PrInfo {
   key: string
 }
 
-export function prInfo(location: Location): PrInfo | null {
+export function prInfo(location: Pick<Location, 'pathname'>): PrInfo | null {
   const match = location.pathname.match(/^\/([^/]+)\/([^/]+)\/pull\/(\d+)/)
   if (!match) return null
   const [, owner, repo, number] = match

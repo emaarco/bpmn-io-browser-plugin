@@ -6,12 +6,19 @@
  * and sends the user's cookies, so private repositories work too.
  */
 
+import type { ViewScript } from '../inject/viewScripts'
+
 export interface FetchTextRequest {
   type: 'fetchText'
   url: string
 }
 
-export type BackgroundRequest = FetchTextRequest
+export interface InjectViewScriptRequest {
+  type: 'injectViewScript'
+  script: ViewScript
+}
+
+export type BackgroundRequest = FetchTextRequest | InjectViewScriptRequest
 
 export type FetchTextResponse =
   { ok: true; text: string } | { ok: false; error: string; status?: number }

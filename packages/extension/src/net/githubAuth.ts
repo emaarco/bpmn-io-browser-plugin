@@ -28,6 +28,8 @@ const GITHUB_APP_CLIENT_ID = 'Iv23liayyRyhjA7nIqfG'
 export const GITHUB_APP_INSTALL_URL =
   'https://github.com/apps/bpmn-io-browser-plugin/installations/new'
 
+export const GITHUB_INSTALLED_APPS_URL = 'https://github.com/settings/installations'
+
 const DEVICE_CODE_URL = 'https://github.com/login/device/code'
 const ACCESS_TOKEN_URL = 'https://github.com/login/oauth/access_token'
 const DEVICE_GRANT_TYPE = 'urn:ietf:params:oauth:grant-type:device_code'
