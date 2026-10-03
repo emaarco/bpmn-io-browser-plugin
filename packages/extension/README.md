@@ -14,6 +14,16 @@ It's the primary delivery path for the [`core`](../core) diff engine, wrapped in
 [bpmn-js / dmn-js](https://bpmn.io) for rendering and built with
 [WXT](https://wxt.dev) so one codebase ships to Chromium **and** Firefox.
 
+## Install
+
+| Browser | Store                                                                                                                | Status      |
+| ------- | -------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/bpmn-io-browser-plugin/mdliikikbdabamnppihmmpmgpeiliifm) | Available   |
+| Firefox | [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/bpmn-io-browser-plugin@emaarco.github.io/)                | Coming soon |
+| Edge    | Edge Add-ons                                                                                                         | Planned     |
+
+Building from source is covered in the repo [README](../../README.md#install).
+
 ## What's inside
 
 - **`entrypoints/*.content.ts`** — content scripts per surface: file (blob)
