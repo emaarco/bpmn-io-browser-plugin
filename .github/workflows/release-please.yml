@@ -73,6 +73,7 @@ jobs:
           name: store-bundles
           path: packages/extension/.output/*.zip
           if-no-files-found: error
+          include-hidden-files: true
 
   # Manual dry run (workflow_dispatch, dry_run checked): build + lint the store
   # bundles without uploading and without touching the protected environment.
