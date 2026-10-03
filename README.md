@@ -44,7 +44,14 @@ Tampermonkey userscripts, now reworked into a tested, store-ready extension.
 
 ## Install
 
-Not on the stores yet — build it once and load it as an unpacked extension:
+| Browser | Store                                                                                                                | Status      |
+| ------- | -------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/bpmn-io-browser-plugin/mdliikikbdabamnppihmmpmgpeiliifm) | Available   |
+| Firefox | [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/bpmn-io-browser-plugin@emaarco.github.io/)                | Coming soon |
+| Edge    | Edge Add-ons                                                                                                         | Planned     |
+
+Until your browser's store listing is live, you can build it yourself and load
+it as an unpacked extension:
 
 ```bash
 npm install
