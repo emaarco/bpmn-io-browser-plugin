@@ -1,77 +1,49 @@
 /**
  * Dynamic content-script registration for self-hosted GitLab/GitHub instances.
  *
- * The compiled content scripts already carry their CSS inline (see
- * bundledCss.ts), so registering them for a user-granted origin is enough — no
- * web-accessible resources or per-origin manifest entries required.
- *
- * We register *all* patterns for every granted origin rather than asking the
- * user which flavour their instance is: the GitLab and GitHub blob patterns are
- * made mutually exclusive (the GitHub one excludes GitLab's `/-/` routes), so a
- * host that is actually GitLab never triggers the GitHub script and vice versa.
- * Enabling a domain therefore "just works" whether it is GitLab EE or GitHub
- * Enterprise — no type guess to get wrong.
+ * A granted origin only gets the view router registered, for all of its pages.
+ * The router decides per URL which view script applies — telling GitLab from
+ * GitHub by the route shape, so the user never has to say which flavour their
+ * instance is — and has the background worker load it on demand.
  */
 
 import { browser } from 'wxt/browser'
+import { VIEW_SCRIPTS } from '../inject/viewScripts'
 import { getSavedHosts, type SelfHostedHost } from './storage'
 
-function scriptsFor(origin: string) {
-  return [
-    {
-      id: `bpmn-io-browser-plugin:${origin}:gitlab-blob`,
-      matches: [`${origin}/*/-/blob/*`],
-      js: ['content-scripts/gitlab-blob.js'],
-      runAt: 'document_idle' as const,
-    },
-    {
-      id: `bpmn-io-browser-plugin:${origin}:gitlab-mr`,
-      matches: [`${origin}/*/-/merge_requests/*`],
-      js: ['content-scripts/gitlab-mr.js'],
-      runAt: 'document_idle' as const,
-    },
-    {
-      id: `bpmn-io-browser-plugin:${origin}:github-blob`,
-      matches: [`${origin}/*/blob/*`],
-      // GitLab blob URLs (`/group/repo/-/blob/…`) also match `*/blob/*`; exclude
-      // every GitLab `/-/` route so this script only fires on real GitHub blobs.
-      excludeMatches: [`${origin}/*/-/*`],
-      js: ['content-scripts/github-blob.js'],
-      runAt: 'document_idle' as const,
-    },
-    {
-      id: `bpmn-io-browser-plugin:${origin}:github-pr`,
-      matches: [`${origin}/*/pull/*`],
-      js: ['content-scripts/github-pr.js'],
-      runAt: 'document_idle' as const,
-    },
-    {
-      id: `bpmn-io-browser-plugin:${origin}:github-commit`,
-      matches: [`${origin}/*/commit/*`],
-      // GitLab commit URLs (`/group/repo/-/commit/…`) also match `*/commit/*`;
-      // exclude every GitLab `/-/` route so this only fires on real GitHub.
-      excludeMatches: [`${origin}/*/-/*`],
-      js: ['content-scripts/github-commit.js'],
-      runAt: 'document_idle' as const,
-    },
-  ]
+const VIEW_ROUTER = 'view-router'
+const scriptsRegisteredByEarlierVersions = VIEW_SCRIPTS
+
+const scriptId = (origin: string, script: string) => `bpmn-io-browser-plugin:${origin}:${script}`
+
+function viewRouterFor(origin: string) {
+  return {
+    id: scriptId(origin, VIEW_ROUTER),
+    matches: [`${origin}/*`],
+    js: [`content-scripts/${VIEW_ROUTER}.js`],
+    runAt: 'document_idle' as const,
+  }
 }
 
-/** Register (or refresh) the content scripts for a single granted host. */
+async function registeredScriptIds(origin: string): Promise<string[]> {
+  const ids = [VIEW_ROUTER, ...scriptsRegisteredByEarlierVersions].map((script) =>
+    scriptId(origin, script),
+  )
+  const registered = await browser.scripting.getRegisteredContentScripts({ ids }).catch(() => [])
+  return registered.map((script) => script.id)
+}
+
+/** Register (or refresh) the view router for a single granted host. */
 export async function registerHost(host: SelfHostedHost): Promise<void> {
-  const scripts = scriptsFor(host.origin)
-  const ids = scripts.map((s) => s.id)
-  const existing = await browser.scripting.getRegisteredContentScripts({ ids }).catch(() => [])
-  if (existing.length) {
-    await browser.scripting.unregisterContentScripts({ ids: existing.map((s) => s.id) })
-  }
-  await browser.scripting.registerContentScripts(scripts)
+  const ids = await registeredScriptIds(host.origin)
+  if (ids.length) await browser.scripting.unregisterContentScripts({ ids })
+  await browser.scripting.registerContentScripts([viewRouterFor(host.origin)])
 }
 
 /** Remove the content scripts for a host (called when the user deletes it). */
 export async function unregisterHost(host: SelfHostedHost): Promise<void> {
-  const ids = scriptsFor(host.origin).map((s) => s.id)
-  await browser.scripting.unregisterContentScripts({ ids }).catch(() => undefined)
+  const ids = await registeredScriptIds(host.origin)
+  if (ids.length) await browser.scripting.unregisterContentScripts({ ids }).catch(() => undefined)
 }
 
 /**

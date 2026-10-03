@@ -6,6 +6,7 @@ import { registerHost, registerSavedHosts, unregisterHost } from '../src/hosts/r
 import { addHost, getSavedHosts, removeHost } from '../src/hosts/storage'
 import { isSupportedUrl, originToPattern, patternToOrigin } from '../src/hosts/detect'
 import { getGithubToken, tokenTargetsGithubApi } from '../src/net/githubTokenStore'
+import { VIEW_SCRIPTS, type ViewScript } from '../src/inject/viewScripts'
 
 export default defineBackground(() => {
   // Re-register content scripts for user-added self-hosted instances on startup.
@@ -29,10 +30,14 @@ export default defineBackground(() => {
   browser.permissions.onAdded.addListener((perms) => void onGranted(perms.origins ?? []))
   browser.permissions.onRemoved.addListener((perms) => void onRevoked(perms.origins ?? []))
 
-  browser.runtime.onMessage.addListener((message: BackgroundRequest, _sender, sendResponse) => {
+  browser.runtime.onMessage.addListener((message: BackgroundRequest, sender, sendResponse) => {
     if (message?.type === 'fetchText') {
       fetchTextForContent(message.url).then(sendResponse)
       return true // keep the message channel open for the async response
+    }
+    if (message?.type === 'injectViewScript') {
+      injectViewScript(sender.tab?.id, message.script).then(sendResponse)
+      return true
     }
     return false
   })
@@ -108,4 +113,18 @@ async function githubApiAuthHeaders(url: string): Promise<HeadersInit | undefine
   if (!tokenTargetsGithubApi(url)) return undefined
   const token = await getGithubToken()
   return token ? { Authorization: `Bearer ${token}` } : undefined
+}
+
+async function injectViewScript(tabId: number | undefined, script: ViewScript): Promise<boolean> {
+  if (tabId == null || !VIEW_SCRIPTS.includes(script)) return false
+  try {
+    await browser.scripting.executeScript({
+      target: { tabId },
+      files: [`/content-scripts/${script}.js`],
+    })
+    return true
+  } catch (err) {
+    console.error(`[bpmn-io-browser-plugin] could not load ${script}`, err)
+    return false
+  }
 }

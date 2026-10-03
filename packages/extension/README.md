@@ -17,9 +17,12 @@ It's the primary delivery path for the [`core`](../core) diff engine, wrapped in
 ## What's inside
 
 - **`entrypoints/*.content.ts`** — content scripts per surface: file (blob)
-  viewer and PR/MR diff, for GitHub and GitLab.
+  viewer and PR/MR diff, for GitHub and GitLab. Only `view-router` is declared
+  in the manifest: it follows the hosts' client-side navigation and has the
+  background load the matching view script on demand.
 - **`entrypoints/background.ts`** — fetches file contents from the host you're
-  viewing and manages per-domain permissions (self-hosted GitLab/GitHub).
+  viewing, loads view scripts on demand and manages per-domain permissions
+  (self-hosted GitLab/GitHub).
 - **`entrypoints/options` + `viewer`** — the options page and a standalone
   drop-in viewer (nothing leaves your machine).
 - **`src/`** — platform adapters (`platforms/`), diagram kinds (`kinds/`),

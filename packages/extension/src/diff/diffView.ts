@@ -48,6 +48,7 @@ type ModelView = 'diff' | 'plain'
 const EMPTY_DIFF: BpmnDiff = { added: [], removed: [], changed: [], moved: [] }
 const FOCUS_ZOOM = 1.3
 const ZOOM_STEP = 1.2
+const LOADING_LABEL = 'Loading diagram…'
 
 export function mountDiffView(container: HTMLElement, options: DiffViewOptions): DiffViewHandle {
   // The only switch: the Plain head model (default) vs the before/after Diff.
@@ -85,7 +86,7 @@ export function mountDiffView(container: HTMLElement, options: DiffViewOptions):
   const right = buildPane()
   const grid = h('div', { class: 'git-diagram-di-grid' }, [left.wrap, right.wrap])
 
-  const plainCanvas = h('div', { class: 'git-diagram-di-canvas' })
+  const plainCanvas = h('div', { class: 'git-diagram-di-canvas' }, [canvasLabel(LOADING_LABEL)])
   const plainPane = h('div', { class: 'git-diagram-di-pane git-diagram-di-single' }, [plainCanvas])
   const plainView = h('div', { class: 'git-diagram-di-grid' }, [plainPane])
 
@@ -237,18 +238,21 @@ async function mountViewer(
   xml: string | null,
   emptyLabel: string,
 ): Promise<Viewer | null> {
+  canvas.replaceChildren()
   if (!xml) {
-    canvas.append(h('div', { class: 'git-diagram-di-empty', text: emptyLabel }))
+    canvas.append(canvasLabel(emptyLabel))
     return null
   }
   try {
     return await createThemedViewer(canvas, xml)
   } catch (err) {
-    canvas.append(
-      h('div', { class: 'git-diagram-di-empty', text: `render error: ${errorMessage(err)}` }),
-    )
+    canvas.append(canvasLabel(`render error: ${errorMessage(err)}`))
     return null
   }
+}
+
+function canvasLabel(text: string): HTMLElement {
+  return h('div', { class: 'git-diagram-di-empty', text })
 }
 
 function buildPane(): Pane {
@@ -273,7 +277,7 @@ function buildPane(): Pane {
   const navBar = h('div', { class: 'git-diagram-di-nav' }, [nav.prev, nav.next, nav.all])
 
   const overlay = h('div', { class: 'git-diagram-di-overlay' }, [legend, navBar])
-  const canvas = h('div', { class: 'git-diagram-di-canvas' })
+  const canvas = h('div', { class: 'git-diagram-di-canvas' }, [canvasLabel(LOADING_LABEL)])
   const wrap = h('div', { class: 'git-diagram-di-pane' }, [overlay, canvas])
   return { wrap, canvas, keys, nav }
 }

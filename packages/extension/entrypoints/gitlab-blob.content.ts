@@ -3,9 +3,8 @@ import { gitlabPlatform } from '../src/platforms/gitlab'
 import { runBlobViewer } from '../src/inject/blobViewer'
 
 export default defineContentScript({
-  matches: ['https://gitlab.com/*/-/blob/*'],
+  registration: 'runtime',
   cssInjectionMode: 'manual',
-  runAt: 'document_idle',
   main(ctx) {
     runBlobViewer(ctx, gitlabPlatform)
   },

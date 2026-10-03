@@ -1,6 +1,6 @@
 /**
- * E2E test builds (`WXT_E2E=1`) let the git-host content scripts additionally run
- * on `http://localhost/*`, so the WebdriverIO suite can serve GitHub-shaped
+ * E2E test builds (`WXT_E2E=1`) let the view router additionally run on
+ * `http://localhost/*`, so the WebdriverIO suite can serve GitHub-shaped
  * fixture pages from a local server instead of driving the real github.com (auth,
  * rate limits, DOM churn). Read at **build time only** — WXT evaluates each
  * entrypoint in Node to extract its `matches`, where `process.env` is available;

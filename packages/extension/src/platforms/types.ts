@@ -12,7 +12,7 @@ export interface BlobPlatform {
   readonly id: 'gitlab' | 'github'
 
   /** True when the current location is a file (blob) page on this host. */
-  isBlob(location: Location): boolean
+  isBlob(location: Pick<Location, 'pathname'>): boolean
 
   /** URL that serves the raw file content for the current blob page. */
   rawUrl(location: Location): string

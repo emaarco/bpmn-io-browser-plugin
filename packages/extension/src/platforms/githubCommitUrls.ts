@@ -12,7 +12,7 @@ export interface CommitInfo {
   key: string
 }
 
-export function commitInfo(location: Location): CommitInfo | null {
+export function commitInfo(location: Pick<Location, 'pathname'>): CommitInfo | null {
   const match = location.pathname.match(/^\/([^/]+)\/([^/]+)\/commit\/([0-9a-fA-F]{7,64})/)
   if (!match) return null
   const [, owner, repo, sha] = match

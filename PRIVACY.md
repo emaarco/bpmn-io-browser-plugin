@@ -30,12 +30,14 @@ leaves your browser:
   the options page (via GitHub's device flow — no token to paste by hand); the
   extension never sees a client secret. It is sent **only** to `api.github.com`
   (never to any other host) to authenticate the diff-metadata requests, and only
-  if you choose to connect. Disconnecting in the options page removes it.
+  if you choose to connect. Disconnecting in the options page removes it from
+  your browser; the GitHub App itself stays installed and authorised on GitHub
+  until you uninstall it and revoke its authorisation in your GitHub settings.
 
 ## Permissions
 
-- `scripting`, `storage` — register the viewer on self-hosted instances you add,
-  and remember that list.
+- `scripting`, `storage` — load the viewer when you open a diagram, register it
+  on self-hosted instances you add, and remember that list.
 - Host access (`gitlab.com`, `github.com`, `raw.githubusercontent.com`, plus any
   self-hosted domain you grant) — required to read and render `.bpmn` files on
   those sites. Access to other sites is only ever requested when you add them.

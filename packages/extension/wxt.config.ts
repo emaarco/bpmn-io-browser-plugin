@@ -17,8 +17,8 @@ const env = (globalThis as { process?: { env?: Record<string, string | undefined
 const openExample = Boolean(env?.WXT_DEV_EXAMPLE)
 
 // E2E test build: let the background worker fetch the fixture server's raw files
-// and PR JSON from localhost (the github content scripts also match localhost —
-// see `withE2eMatches`). Never enabled in a store build.
+// and PR JSON from localhost (the view router also matches localhost — see
+// `withE2eMatches`). Never enabled in a store build.
 const e2e = Boolean(env?.WXT_E2E)
 const e2eHostPermissions = e2e ? ['http://localhost/*'] : []
 
