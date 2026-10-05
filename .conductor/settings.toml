@@ -10,7 +10,7 @@ available_in = [ "local" ]
 icon = "camera"
 
 [scripts.run.dev-example]
-command = "npm run dev:example -- --port $CONDUCTOR_PORT"
+command = "npm run dev:example -w @bpmn-io-browser-plugin/extension -- --port $CONDUCTOR_PORT"
 available_in = [ "local" ]
 default = true
 icon = "play"
