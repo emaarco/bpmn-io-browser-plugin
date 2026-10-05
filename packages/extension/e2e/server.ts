@@ -107,6 +107,14 @@ export function startFixtureServer(port: number): Promise<FixtureServer> {
         }),
       )
     }
+    if (path === `/api/v3/repos/${PR.owner}/${PR.repo}/compare/${PR.baseSha}...${PR.headSha}`) {
+      return send(
+        res,
+        200,
+        MIME['.json']!,
+        JSON.stringify({ merge_base_commit: { sha: PR.baseSha } }),
+      )
+    }
     if (path === `/api/v3/repos/${PR.owner}/${PR.repo}/pulls/${PR.number}/files`) {
       return send(
         res,
