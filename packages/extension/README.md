@@ -16,11 +16,11 @@ It's the primary delivery path for the [`core`](../core) diff engine, wrapped in
 
 ## Install
 
-| Browser | Store                                                                                                                | Status      |
-| ------- | -------------------------------------------------------------------------------------------------------------------- | ----------- |
-| Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/bpmn-io-browser-plugin/mdliikikbdabamnppihmmpmgpeiliifm) | Available   |
-| Firefox | [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/bpmn-io-browser-plugin@emaarco.github.io/)                | Coming soon |
-| Edge    | Edge Add-ons                                                                                                         | Planned     |
+| Browser | Store                                                                                                                | Status    |
+| ------- | -------------------------------------------------------------------------------------------------------------------- | --------- |
+| Chrome  | [Chrome Web Store](https://chromewebstore.google.com/detail/bpmn-io-browser-plugin/mdliikikbdabamnppihmmpmgpeiliifm) | Available |
+| Firefox | [Firefox Add-ons](https://addons.mozilla.org/firefox/addon/bpmn-io-browser-plugin@emaarco.github.io/)                | Available |
+| Edge    | Edge Add-ons                                                                                                         | Planned   |
 
 Building from source is covered in the repo [README](../../README.md#install).
 
