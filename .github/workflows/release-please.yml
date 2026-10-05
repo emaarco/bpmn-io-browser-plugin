@@ -9,6 +9,14 @@ on:
         description: 'Validate the store bundles without uploading to any store'
         type: boolean
         default: true
+      tag:
+        description: 'Release tag to publish, e.g. v0.2.1 (empty = latest release)'
+        type: string
+      store:
+        description: 'Store to publish to'
+        type: choice
+        options: [all, chrome, edge, firefox]
+        default: all
 
 permissions:
   contents: write
@@ -100,45 +108,66 @@ jobs:
           ls -la packages/extension/.output/*.zip
           npm run lint:webext -w @bpmn-io-browser-plugin/extension
 
-  # Real upload to the stores. Manual only (workflow_dispatch, dry_run unchecked)
-  # and reviewer-gated via the `store-publishing` environment. A push-triggered
-  # release never reaches this job. Each store runs only when its secrets exist,
-  # so unconfigured stores (e.g. Edge before you have its keys) are skipped.
+  # Real upload to the stores, reviewer-gated via the `store-publishing`
+  # environment. Runs on its own after a release was packaged, or manually
+  # (workflow_dispatch, dry_run unchecked) to re-publish an existing release.
+  # Always ships the bundles attached to the GitHub release of the tag, never a
+  # fresh build of main. Each store runs only when its secrets exist, so
+  # unconfigured stores (e.g. Edge before you have its keys) are skipped, and a
+  # failing store does not stop the others — the job still ends red.
   # Add the credentials to the `store-publishing` environment.
   publish:
-    if: github.event_name == 'workflow_dispatch' && inputs.dry_run == false
+    needs: [release-please, package]
+    if: >-
+      !cancelled() && (
+        (github.event_name == 'push' && needs.package.result == 'success') ||
+        (github.event_name == 'workflow_dispatch' && inputs.dry_run == false && needs.package.result != 'failure')
+      )
     runs-on: ubuntu-latest
     environment: store-publishing
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 24
-          cache: npm
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Resolve the release tag
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ inputs.tag || needs.release-please.outputs.tag_name }}
+        run: echo "tag=${TAG:-$(gh release view --json tagName --jq .tagName)}" >> "$GITHUB_OUTPUT"
 
-      - name: Build & zip (Chrome + Firefox)
-        run: npm run zip -w @bpmn-io-browser-plugin/extension
+      - name: Download the store bundles of the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          gh release download "$TAG" --pattern '*-chrome.zip' --pattern '*-firefox.zip' --dir bundles
+          unzip -q bundles/*-firefox.zip -d bundles/firefox-mv3
+          ls -la bundles
 
       - name: Detect which stores are configured
         id: stores
         env:
+          STORE: ${{ inputs.store || 'all' }}
           CHROME_ID: ${{ secrets.CHROME_ID }}
           EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
           AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
         run: |
+          enabled() { { [ "$STORE" = all ] || [ "$STORE" = "$1" ]; } && [ -n "$2" ] && echo true || echo false; }
           {
-            echo "chrome=$([ -n "$CHROME_ID" ] && echo true || echo false)"
-            echo "edge=$([ -n "$EDGE_PRODUCT_ID" ] && echo true || echo false)"
-            echo "firefox=$([ -n "$AMO_JWT_ISSUER" ] && echo true || echo false)"
+            echo "chrome=$(enabled chrome "$CHROME_ID")"
+            echo "edge=$(enabled edge "$EDGE_PRODUCT_ID")"
+            echo "firefox=$(enabled firefox "$AMO_JWT_ISSUER")"
           } >> "$GITHUB_OUTPUT"
 
       - name: Publish to Chrome Web Store
-        if: steps.stores.outputs.chrome == 'true'
+        if: ${{ !cancelled() && steps.stores.outputs.chrome == 'true' }}
         env:
           CHROME_ID: ${{ secrets.CHROME_ID }}
           CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
@@ -146,26 +175,26 @@ jobs:
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
         run: |
           npx chrome-webstore-upload-cli@3 upload \
-            --source "$(ls packages/extension/.output/*-chrome.zip | head -n1)" \
+            --source "$(ls bundles/*-chrome.zip | head -n1)" \
             --extension-id "$CHROME_ID" --client-id "$CHROME_CLIENT_ID" \
             --client-secret "$CHROME_CLIENT_SECRET" --refresh-token "$CHROME_REFRESH_TOKEN" \
             --auto-publish
 
       - name: Publish to Edge Add-ons
-        if: steps.stores.outputs.edge == 'true'
+        if: ${{ !cancelled() && steps.stores.outputs.edge == 'true' }}
         uses: wdzeng/edge-addon@9881f57720358040d079eaa06a4596dc9c273eb6 # v2.1.1
         with:
           product-id: ${{ secrets.EDGE_PRODUCT_ID }}
-          zip-path: packages/extension/.output/*-chrome.zip
+          zip-path: bundles/*-chrome.zip
           client-id: ${{ secrets.EDGE_CLIENT_ID }}
           api-key: ${{ secrets.EDGE_API_KEY }}
 
       - name: Sign & publish to Firefox AMO
-        if: steps.stores.outputs.firefox == 'true'
+        if: ${{ !cancelled() && steps.stores.outputs.firefox == 'true' }}
         env:
           AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
           AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
         run: |
           npx --package=web-ext@10 web-ext sign --channel listed \
-            --source-dir packages/extension/.output/firefox-mv3 \
+            --source-dir bundles/firefox-mv3 \
             --api-key "$AMO_JWT_ISSUER" --api-secret "$AMO_JWT_SECRET"
