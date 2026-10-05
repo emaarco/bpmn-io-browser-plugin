@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/emaarco/bpmn-io-browser-plugin/compare/v0.2.0...v0.2.1) (2026-10-05)
+
+
+### Bug Fixes
+
+* detect missed BPMN changes and diff GitHub PRs against the merge base ([#60](https://github.com/emaarco/bpmn-io-browser-plugin/issues/60)) ([9dcc30f](https://github.com/emaarco/bpmn-io-browser-plugin/commit/9dcc30f0bb61e42c7bf7abe2226afc8b621850b1))
+
 ## 0.2.0 (2026-10-03)
 
 
