@@ -8,7 +8,14 @@
 export { computeDiff } from './domain/diff'
 export { signature } from './domain/signature'
 export { isEmptyDiff } from './domain/model'
-export type { BpmnDiff, DiffElement, ParsedModel, ModdleElement, Point } from './domain/model'
+export type {
+  Bounds,
+  BpmnDiff,
+  DiffElement,
+  ParsedModel,
+  ModdleElement,
+  Point,
+} from './domain/model'
 
 // Adapter — BPMN XML -> parsed model (bpmn-moddle)
 export { parseBpmn } from './adapter/parseBpmn'

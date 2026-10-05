@@ -15,20 +15,24 @@ export interface Point {
   y: number
 }
 
+export interface Bounds {
+  x?: number
+  y?: number
+  width?: number
+  height?: number
+}
+
 /**
  * One diagram element as it appears on the canvas: its semantic business object
  * plus the layout taken from the matching BPMN DI shape/edge. This mirrors what a
  * bpmn-js `elementRegistry` entry exposes (`businessObject` + `x/y/width/height`),
  * but is built straight from moddle without a live viewer.
  */
-export interface DiffElement {
+export interface DiffElement extends Bounds {
   id: string
   businessObject: ModdleElement
   isConnection: boolean
-  x?: number
-  y?: number
-  width?: number
-  height?: number
+  labelBounds?: Bounds
   waypoints?: Point[]
 }
 

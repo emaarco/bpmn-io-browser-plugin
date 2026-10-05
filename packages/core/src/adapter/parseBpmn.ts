@@ -10,7 +10,7 @@
 
 import { BpmnModdle } from 'bpmn-moddle'
 import type { ModdleElement } from 'bpmn-moddle'
-import type { DiffElement, ParsedModel } from '../domain/model'
+import type { Bounds, DiffElement, ParsedModel } from '../domain/model'
 
 export async function parseBpmn(xml: string): Promise<ParsedModel> {
   const moddle = new BpmnModdle()
@@ -54,14 +54,15 @@ function addDiElement(model: ParsedModel, di: ModdleElement): void {
 
   const element: DiffElement = { id: semantic.id, businessObject: semantic, isConnection }
 
-  const bounds: ModdleElement | undefined = di.bounds
-  if (bounds) {
-    element.x = bounds.x
-    element.y = bounds.y
-    element.width = bounds.width
-    element.height = bounds.height
-  }
+  Object.assign(element, boundsOf(di))
+  if (di.label?.bounds) element.labelBounds = boundsOf(di.label)
   if (waypoints) element.waypoints = waypoints
 
   model.set(semantic.id, element)
+}
+
+function boundsOf(di: ModdleElement): Bounds {
+  const bounds: ModdleElement | undefined = di.bounds
+  if (!bounds) return {}
+  return { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height }
 }

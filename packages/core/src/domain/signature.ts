@@ -8,10 +8,15 @@
  * and child/reference collections that would otherwise cause false positives or
  * infinite recursion.
  *
- * References to other diagram elements are compared by id only (not followed).
+ * References to other diagram elements are compared by id only (not followed),
+ * since those are diffed as elements in their own right. Referenced elements
+ * without a shape of their own (messages, errors, a pool's process, …) are folded
+ * into the signature instead — otherwise their changes would surface nowhere.
  */
 
-import type { ModdleElement } from './model'
+import type { ModdleElement, ParsedModel } from './model'
+
+type DiagramElements = Pick<ParsedModel, 'has'>
 
 /**
  * Internal moddle keys plus layout and child/reference collections. These are
@@ -42,26 +47,39 @@ const SKIP_KEYS = new Set<string>([
 
 const MAX_DEPTH = 16
 
-function serialize(node: any, seen: Set<object>, depth: number): unknown {
+/**
+ * moddle defines reference properties (`sourceRef`, `messageRef`, …) as
+ * non-enumerable, so they have to be read off the type descriptor.
+ */
+function semanticKeys(node: any): string[] {
+  const references: string[] = (node.$descriptor?.properties ?? [])
+    .filter((property: any) => property.isReference)
+    .map((property: any) => property.name)
+  return [...new Set([...Object.keys(node), ...references])].sort()
+}
+
+function serialize(
+  node: any,
+  diagramElements: DiagramElements,
+  seen: Set<object>,
+  depth: number,
+): unknown {
   if (node === null || typeof node !== 'object') return node
   if (depth > MAX_DEPTH) return '__max__'
-  if (Array.isArray(node)) return node.map((x) => serialize(x, seen, depth + 1))
+  if (Array.isArray(node)) return node.map((x) => serialize(x, diagramElements, seen, depth + 1))
+  // Reference to another diagram element -> compare by id only (don't recurse).
+  if (diagramElements.has(node.id)) return 'ref:' + node.id
   if (seen.has(node)) return '__cycle__'
   seen.add(node)
 
   const out: Record<string, any> = {}
   if (node.$type) out.__type = node.$type
 
-  for (const k of Object.keys(node).sort()) {
+  for (const k of semanticKeys(node)) {
     if (k === '$type' || SKIP_KEYS.has(k)) continue
     const v = node[k]
     if (typeof v === 'function' || v === undefined) continue
-    // Reference to another diagram element -> compare by id only (don't recurse).
-    if (v && typeof v === 'object' && !Array.isArray(v) && v.id) {
-      out[k] = 'ref:' + v.id
-      continue
-    }
-    out[k] = serialize(v, seen, depth + 1)
+    out[k] = serialize(v, diagramElements, seen, depth + 1)
   }
 
   seen.delete(node)
@@ -69,6 +87,9 @@ function serialize(node: any, seen: Set<object>, depth: number): unknown {
 }
 
 /** Stable JSON signature of a business object's semantic content. */
-export function signature(businessObject: ModdleElement): string {
-  return JSON.stringify(serialize(businessObject, new Set(), 0))
+export function signature(businessObject: ModdleElement, diagramElements: DiagramElements): string {
+  const otherDiagramElements: DiagramElements = {
+    has: (id) => id !== businessObject.id && diagramElements.has(id),
+  }
+  return JSON.stringify(serialize(businessObject, otherDiagramElements, new Set(), 0))
 }

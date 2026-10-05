@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:zeebe="http://camunda.org/schema/zeebe/1.0"
+                  id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn">
+  <bpmn:message id="Message_1" name="order-received">
+    <bpmn:extensionElements>
+      <zeebe:subscription correlationKey="=orderId" />
+    </bpmn:extensionElements>
+  </bpmn:message>
+  <bpmn:error id="Error_1" name="Rejected" errorCode="rejected" />
+  <bpmn:category id="Category_1">
+    <bpmn:categoryValue id="CategoryValue_1" value="Fulfilment" />
+  </bpmn:category>
+  <bpmn:process id="Process_1" isExecutable="true">
+    <bpmn:intermediateCatchEvent id="CatchEvent_1" name="Order received">
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1" messageRef="Message_1" />
+    </bpmn:intermediateCatchEvent>
+    <bpmn:endEvent id="EndEvent_1">
+      <bpmn:errorEventDefinition id="ErrorEventDefinition_1" errorRef="Error_1" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1" sourceRef="CatchEvent_1" targetRef="EndEvent_1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression" id="Expression_1">=approved</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:group id="Group_1" categoryValueRef="CategoryValue_1" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="CatchEvent_1_di" bpmnElement="CatchEvent_1">
+        <dc:Bounds x="150" y="100" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="130" y="143" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_1_di" bpmnElement="EndEvent_1">
+        <dc:Bounds x="300" y="100" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Group_1_di" bpmnElement="Group_1">
+        <dc:Bounds x="100" y="50" width="300" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
+        <di:waypoint x="186" y="118" />
+        <di:waypoint x="300" y="118" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
