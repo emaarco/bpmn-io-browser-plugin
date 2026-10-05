@@ -60,6 +60,71 @@ describe('computeDiff', () => {
     // contains it (participants/messageFlows are diffed as their own elements).
     expect(result.changed).toEqual(['Participant_1'])
   })
+
+  it('detects a process property change behind a pool', async () => {
+    const collab = readFixture('collaboration.bpmn')
+    const notExecutable = collab.replace(
+      'id="Process_1" isExecutable="true"',
+      'id="Process_1" isExecutable="false"',
+    )
+    const result = await diff(collab, notExecutable)
+    expect(result.changed).toEqual(['Participant_1'])
+  })
+
+  describe('referenced elements without a shape of their own', () => {
+    const references = readFixture('references.bpmn')
+
+    it('detects a renamed message on the event that references it', async () => {
+      const result = await diff(references, references.replace('order-received', 'order-placed'))
+      expect(result.changed).toEqual(['CatchEvent_1'])
+    })
+
+    it('detects a changed message correlation key', async () => {
+      const result = await diff(references, references.replace('=orderId', '=customerId'))
+      expect(result.changed).toEqual(['CatchEvent_1'])
+    })
+
+    it('detects a changed error code', async () => {
+      const changed = references.replace('errorCode="rejected"', 'errorCode="declined"')
+      const result = await diff(references, changed)
+      expect(result.changed).toEqual(['EndEvent_1'])
+    })
+
+    it('detects a relabelled group', async () => {
+      const result = await diff(references, references.replace('Fulfilment', 'Shipping'))
+      expect(result.changed).toEqual(['Group_1'])
+    })
+
+    it('detects a changed condition expression that carries an id', async () => {
+      const result = await diff(references, references.replace('=approved', '=rejected'))
+      expect(result.changed).toEqual(['Flow_1'])
+    })
+
+    it('detects a rewired sequence flow', async () => {
+      const rewired = references.replace(
+        'sourceRef="CatchEvent_1" targetRef="EndEvent_1"',
+        'sourceRef="EndEvent_1" targetRef="CatchEvent_1"',
+      )
+      const result = await diff(references, rewired)
+      expect(result.changed).toEqual(['Flow_1'])
+    })
+
+    it('keeps comparing diagram elements by id only', async () => {
+      const renamedTarget = references.replace(
+        '<bpmn:endEvent id="EndEvent_1">',
+        '<bpmn:endEvent id="EndEvent_1" name="Rejected">',
+      )
+      const result = await diff(references, renamedTarget)
+      expect(result.changed).toEqual(['EndEvent_1'])
+    })
+
+    it('detects a moved label as a layout move', async () => {
+      const movedLabel = references.replace('x="130" y="143"', 'x="130" y="60"')
+      const result = await diff(references, movedLabel)
+      expect(result.moved).toEqual(['CatchEvent_1'])
+      expect(result.changed).toEqual([])
+    })
+  })
 })
 
 describe('diffBpmn', () => {

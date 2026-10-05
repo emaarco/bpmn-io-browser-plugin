@@ -6,11 +6,11 @@
  * layout differs; otherwise it is `added` (only in new) or `removed` (only in old).
  */
 
-import type { BpmnDiff, DiffElement, ParsedModel } from './model'
+import type { Bounds, BpmnDiff, DiffElement, ParsedModel } from './model'
 import { signature } from './signature'
 
-function semanticChanged(a: DiffElement, b: DiffElement): boolean {
-  return signature(a.businessObject) !== signature(b.businessObject)
+function boundsChanged(a: Bounds | undefined, b: Bounds | undefined): boolean {
+  return a?.x !== b?.x || a?.y !== b?.y || a?.width !== b?.width || a?.height !== b?.height
 }
 
 function waypointSignature(points: DiffElement['waypoints']): string {
@@ -19,9 +19,7 @@ function waypointSignature(points: DiffElement['waypoints']): string {
 }
 
 function layoutChanged(a: DiffElement, b: DiffElement): boolean {
-  if (a.x !== b.x || a.y !== b.y || a.width !== b.width || a.height !== b.height) {
-    return true
-  }
+  if (boundsChanged(a, b) || boundsChanged(a.labelBounds, b.labelBounds)) return true
   return waypointSignature(a.waypoints) !== waypointSignature(b.waypoints)
 }
 
@@ -30,6 +28,9 @@ export function computeDiff(oldModel: ParsedModel, newModel: ParsedModel): BpmnD
   const removed: string[] = []
   const changed: string[] = []
   const moved: string[] = []
+
+  const semanticChanged = (old: DiffElement, el: DiffElement) =>
+    signature(old.businessObject, oldModel) !== signature(el.businessObject, newModel)
 
   newModel.forEach((el, id) => {
     const old = oldModel.get(id)

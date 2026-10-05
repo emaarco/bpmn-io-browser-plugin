@@ -14,6 +14,16 @@ describe('isSupportedUrl', () => {
     expect(isSupportedUrl('https://gitlab.example.com/g/r/-/merge_requests/42/diffs')).toBe(true)
   })
 
+  it('matches .dmn blobs', () => {
+    expect(isSupportedUrl('https://gitlab.example.com/g/r/-/blob/main/rules.dmn')).toBe(true)
+    expect(isSupportedUrl('https://ghe.example.com/org/repo/blob/main/rules.dmn')).toBe(true)
+  })
+
+  it('matches GitHub pull requests and commits', () => {
+    expect(isSupportedUrl('https://ghe.example.com/org/repo/pull/7/files')).toBe(true)
+    expect(isSupportedUrl('https://ghe.example.com/org/repo/commit/0123abc')).toBe(true)
+  })
+
   it('rejects non-.bpmn files, unrelated pages and non-http schemes', () => {
     expect(isSupportedUrl('https://github.com/org/repo/blob/main/README.md')).toBe(false)
     expect(isSupportedUrl('https://gitlab.com/group/repo')).toBe(false)

@@ -1,6 +1,6 @@
 /**
  * URL heuristics shared by the background worker: deciding whether a page is one
- * the extension can render on (blob `.bpmn` or a GitLab merge request), and
+ * the extension can render on (any page a view script exists for), and
  * converting between an origin and its permission match pattern.
  *
  * These are intentionally content-free — they look only at the URL, so the
@@ -8,10 +8,7 @@
  * what makes the "enable here" hint possible without reading the page).
  */
 
-/** A `.bpmn` blob on either host (GitLab `/-/blob/`, GitHub `/blob/`). */
-const BPMN_BLOB = /\/blob\/.*\.bpmn$/i
-/** A GitLab merge request (only GitLab has an MR diff view today). */
-const GITLAB_MR = /\/-\/merge_requests\//
+import { viewScriptsFor } from '../inject/viewScripts'
 
 /** True when the extension has something to render on this URL. */
 export function isSupportedUrl(url: string): boolean {
@@ -22,7 +19,7 @@ export function isSupportedUrl(url: string): boolean {
     return false
   }
   if (u.protocol !== 'http:' && u.protocol !== 'https:') return false
-  return BPMN_BLOB.test(u.pathname) || GITLAB_MR.test(u.pathname)
+  return viewScriptsFor(u).length > 0
 }
 
 /** `https://gitlab.example.com` -> `https://gitlab.example.com/*` */
