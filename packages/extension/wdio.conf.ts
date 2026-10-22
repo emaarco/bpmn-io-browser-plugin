@@ -22,7 +22,7 @@ import type { Options } from '@wdio/types'
 import { startFixtureServer, type FixtureServer } from './e2e/server'
 
 const dir = dirname(fileURLToPath(import.meta.url))
-const chromeExtension = resolve(dir, '.output', 'chrome-mv3') // Chrome + Edge share this
+const chromeExtension = resolve(dir, '.output', 'chrome-mv3')
 const firefoxExtension = resolve(dir, '.output', 'firefox-mv3')
 const screenshotDir = resolve(dir, '.output', 'e2e-screenshots')
 
@@ -75,6 +75,7 @@ let server: FixtureServer | undefined
 
 export const config: Options.Testrunner = {
   runner: 'local',
+  autoXvfb: false,
 
   specs: live ? ['./e2e/live/**/*.e2e.ts'] : ['./e2e/specs/**/*.e2e.ts'],
   maxInstances: 1, // one extension-loaded browser at a time keeps the SW/add-on state simple
