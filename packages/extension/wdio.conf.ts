@@ -75,6 +75,9 @@ let server: FixtureServer | undefined
 
 export const config: Options.Testrunner = {
   runner: 'local',
+  // Every browser runs headless, so no Xvfb is needed. Wrapping workers in
+  // xvfb-run breaks their IPC channel on Ubuntu 26.04 (webdriverio#15685).
+  autoXvfb: false,
 
   specs: live ? ['./e2e/live/**/*.e2e.ts'] : ['./e2e/specs/**/*.e2e.ts'],
   maxInstances: 1, // one extension-loaded browser at a time keeps the SW/add-on state simple
