@@ -1,6 +1,6 @@
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { browser, $, expect } from '@wdio/globals'
+import { browser, $, $$, expect } from '@wdio/globals'
 
 /**
  * The standalone viewer page (`viewer.html`) uses no extension APIs, so we drive
@@ -19,8 +19,8 @@ async function expectRenders(fixture: string): Promise<void> {
     ;(el as HTMLElement).style.display = 'block'
   }, input)
   await input.setValue(join(fixtures, fixture))
-  await expect($('.canvas svg')).toBeExisting()
-  await expect($('.djs-element')).toBeExisting()
+  await expect($$('.canvas svg')).toBeElementsArrayOfSize({ gte: 1 })
+  await expect($$('.djs-element')).toBeElementsArrayOfSize({ gte: 1 })
 }
 
 describe('standalone viewer page', () => {
