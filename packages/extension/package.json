@@ -42,8 +42,8 @@
     "tsx": "4.23.15",
     "typescript": "5.9.3",
     "vite": "8.3.4",
-    "vitest": "5.0.4",
-    "web-ext": "10.7.0",
+    "vitest": "5.0.5",
+    "web-ext": "10.8.0",
     "webdriverio": "9.32.0",
     "wxt": "0.21.4"
   }
