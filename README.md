@@ -7,7 +7,7 @@
 > inline** on GitLab and GitHub — and shows a **visual before/after diff** in
 > merge and pull requests.
 
-![A BPMN diagram rendered inline above the source of a .bpmn file on GitHub](assets/inline-viewer.png)
+![On a GitHub pull request, the changed .bpmn file switches from the plain diagram to a before/after diff, then steps through the added, changed and moved elements](assets/demo.gif)
 
 ## Why
 
