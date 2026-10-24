@@ -2,9 +2,9 @@ import { defineBackground } from 'wxt/utils/define-background'
 import { browser } from 'wxt/browser'
 import addPermissionToggle from 'webext-permission-toggle'
 import type { BackgroundRequest, FetchTextResponse } from '../src/net/messages'
-import { registerHost, registerSavedHosts, unregisterHost } from '../src/hosts/registration'
-import { addHost, getSavedHosts, removeHost } from '../src/hosts/storage'
-import { isSupportedUrl, originToPattern, patternToOrigin } from '../src/hosts/detect'
+import { registerSavedHosts } from '../src/hosts/registration'
+import { disableRevokedHosts, enableGrantedHosts } from '../src/hosts/permissions'
+import { isSupportedUrl, originToPattern } from '../src/hosts/detect'
 import { githubApiAuthHeaders } from '../src/net/githubApiAuth'
 import { VIEW_SCRIPTS, type ViewScript } from '../src/inject/viewScripts'
 
@@ -27,8 +27,10 @@ export default defineBackground(() => {
 
   // A granted/revoked origin (from the toggle, the icon, or the options page)
   // drives the actual content-script registration + persistence.
-  browser.permissions.onAdded.addListener((perms) => void onGranted(perms.origins ?? []))
-  browser.permissions.onRemoved.addListener((perms) => void onRevoked(perms.origins ?? []))
+  browser.permissions.onAdded.addListener((perms) => void enableGrantedHosts(perms.origins ?? []))
+  browser.permissions.onRemoved.addListener(
+    (perms) => void disableRevokedHosts(perms.origins ?? []),
+  )
 
   browser.runtime.onMessage.addListener((message: BackgroundRequest, sender, sendResponse) => {
     if (message?.type === 'fetchText') {
@@ -52,41 +54,6 @@ async function onActionClick(tab: { id?: number; url?: string }): Promise<void> 
   const origin = new URL(tab.url).origin
   // Resolves true immediately if already granted; onAdded then does the rest.
   await browser.permissions.request({ origins: [originToPattern(origin)] }).catch(() => false)
-}
-
-/** A newly granted origin: persist it, register its scripts, reload its tabs. */
-async function onGranted(patterns: string[]): Promise<void> {
-  for (const pattern of patterns) {
-    const origin = patternToOrigin(pattern)
-    if (!origin) continue // e.g. `<all_urls>` — not a concrete self-hosted origin
-    const existing = (await getSavedHosts()).find((h) => h.origin === origin)
-    const host = existing ?? { origin }
-    await addHost(host)
-    try {
-      await registerHost(host)
-    } catch (err) {
-      console.error('[bpmn-io-browser-plugin] register failed for', origin, err)
-      continue
-    }
-    const tabs = await browser.tabs.query({ url: `${origin}/*` }).catch(() => [])
-    for (const tab of tabs) {
-      // Only reload tabs that will actually render — no need to disturb others.
-      if (tab.id != null && tab.url && isSupportedUrl(tab.url)) {
-        browser.tabs.reload(tab.id).catch(() => undefined)
-      }
-    }
-  }
-}
-
-/** A revoked origin (toggle turned off / removed in options): tear it down. */
-async function onRevoked(patterns: string[]): Promise<void> {
-  for (const pattern of patterns) {
-    const origin = patternToOrigin(pattern)
-    if (!origin) continue
-    const host = (await getSavedHosts()).find((h) => h.origin === origin) ?? { origin }
-    await unregisterHost(host).catch(() => undefined)
-    await removeHost(origin)
-  }
 }
 
 async function fetchTextForContent(url: string): Promise<FetchTextResponse> {
