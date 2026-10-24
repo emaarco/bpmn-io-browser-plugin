@@ -6,12 +6,11 @@
  * The host's own code diff stays visible below it.
  */
 
-import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
 import type { ContentScriptContext } from 'wxt/utils/content-script-context'
-import { injectShadowStyles } from './shadowStyles'
+import { mountShadowPanel, onDomChange, onHostPageChange } from './hostDomSync'
 import { DIFF_SHADOW_CSS } from '../styles/bundledCss'
 import { mountDiffView, type DiffViewHandle } from '../diff/diffView'
-import { mountDiffError, type DiffErrorHandle } from '../diff/diffError'
+import { mountDiffError } from '../diff/diffError'
 import {
   DiffDataError,
   type DiffFileBlock,
@@ -67,34 +66,25 @@ export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void
   }
 
   async function mountError(slot: DiffPanelSlot, err: DiffDataError): Promise<void> {
-    const ui = await createShadowRootUi<DiffErrorHandle>(ctx, {
+    const ui = await mountShadowPanel(ctx, {
       name: DIFF_ERROR_TAG,
-      position: 'inline',
       anchor: slot.anchor,
       append: slot.append,
-      onMount: (container, shadow) => {
-        injectShadowStyles(shadow, DIFF_SHADOW_CSS)
-        return mountDiffError(container, { message: err.message, hint: err.hint })
-      },
-      onRemove: (handle) => handle?.destroy(),
+      css: DIFF_SHADOW_CSS,
+      render: (container) => mountDiffError(container, { message: err.message, hint: err.hint }),
     })
-    ui.mount()
     ctx.onInvalidated(() => ui.remove())
   }
 
   async function mount(block: DiffFileBlock): Promise<void> {
-    const ui = await createShadowRootUi<DiffViewHandle>(ctx, {
+    const ui = await mountShadowPanel(ctx, {
       name: DIFF_PANEL_TAG,
-      position: 'inline',
       anchor: block.anchor,
       append: block.append,
-      onMount: (container, shadow) => {
-        injectShadowStyles(shadow, DIFF_SHADOW_CSS)
-        return mountDiffView(container, { loadOld: block.loadOld, loadNew: block.loadNew })
-      },
-      onRemove: (handle) => handle?.destroy(),
+      css: DIFF_SHADOW_CSS,
+      render: (container) =>
+        mountDiffView(container, { loadOld: block.loadOld, loadNew: block.loadNew }),
     })
-    ui.mount()
     ctx.onInvalidated(() => ui.remove())
     mirrorCollapse(ui, block)
   }
@@ -117,38 +107,18 @@ export function runDiff(ctx: ContentScriptContext, platform: DiffPlatform): void
       wasHidden = collapsed
     }
 
-    let collapseScheduled = false
-    const scheduleSync = () => {
-      if (collapseScheduled) return
-      collapseScheduled = true
-      setTimeout(() => {
-        collapseScheduled = false
-        sync()
-      }, COLLAPSE_DEBOUNCE_MS)
-    }
-
-    const observer = new MutationObserver(scheduleSync)
-    observer.observe(block.fileRoot, { attributes: true, childList: true, subtree: true })
-    ctx.onInvalidated(() => observer.disconnect())
+    onDomChange(
+      ctx,
+      block.fileRoot,
+      { attributes: true, childList: true, subtree: true },
+      COLLAPSE_DEBOUNCE_MS,
+      sync,
+    )
 
     // Handle files that load already collapsed (GitLab starts viewed files collapsed).
     sync()
   }
 
-  let scheduled = false
-  const schedule = () => {
-    if (scheduled) return
-    scheduled = true
-    setTimeout(() => {
-      scheduled = false
-      void run()
-    }, DEBOUNCE_MS)
-  }
-
-  ctx.addEventListener(window, 'wxt:locationchange', schedule)
-  const observer = new MutationObserver(schedule)
-  observer.observe(document.body, { childList: true, subtree: true })
-  ctx.onInvalidated(() => observer.disconnect())
-
+  onHostPageChange(ctx, DEBOUNCE_MS, () => void run())
   void run()
 }
