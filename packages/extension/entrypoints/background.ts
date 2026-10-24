@@ -5,7 +5,7 @@ import type { BackgroundRequest, FetchTextResponse } from '../src/net/messages'
 import { registerHost, registerSavedHosts, unregisterHost } from '../src/hosts/registration'
 import { addHost, getSavedHosts, removeHost } from '../src/hosts/storage'
 import { isSupportedUrl, originToPattern, patternToOrigin } from '../src/hosts/detect'
-import { getGithubToken, tokenTargetsGithubApi } from '../src/net/githubTokenStore'
+import { githubApiAuthHeaders } from '../src/net/githubApiAuth'
 import { VIEW_SCRIPTS, type ViewScript } from '../src/inject/viewScripts'
 
 export default defineBackground(() => {
@@ -101,18 +101,6 @@ async function fetchTextForContent(url: string): Promise<FetchTextResponse> {
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) }
   }
-}
-
-/**
- * Authorization header for a request, but only for github.com's REST API — the
- * one host the page cookie can't reach (see {@link githubTokenStore}). Everything else
- * (raw content, GitLab, GitHub Enterprise) is same-origin and cookie-authed, and
- * must never receive the token.
- */
-async function githubApiAuthHeaders(url: string): Promise<HeadersInit | undefined> {
-  if (!tokenTargetsGithubApi(url)) return undefined
-  const token = await getGithubToken()
-  return token ? { Authorization: `Bearer ${token}` } : undefined
 }
 
 async function injectViewScript(tabId: number | undefined, script: ViewScript): Promise<boolean> {

@@ -11,7 +11,7 @@
  * the public `client_id` is needed — no secret.
  *
  * The resulting token is persisted via {@link ./githubTokenStore} and attached only to
- * `api.github.com`; see that module for the storage + guard.
+ * `api.github.com` (see {@link ./githubApiAuth}).
  */
 
 /**

@@ -8,13 +8,10 @@
  *
  * The token is a **user-to-server token obtained via the GitHub App device flow**
  * (see {@link ./githubAuth}) — the user installs the app and connects once, and we
- * store the result here. This module owns only the storage + the send guard; how
+ * store the result here. This module owns only the storage; how
  * the token is acquired lives in `githubAuth.ts`.
  *
- * The token is attached **only** to `api.github.com`: that is the one host the
- * cookie can't reach. GitLab and GitHub Enterprise keep their API same-origin
- * (`/api/v4`, `/api/v3`), so the cookie already authenticates them — sending a
- * github.com token to a self-hosted host would leak it, so we never do.
+ * Where the token may be sent lives in {@link ./githubApiAuth}.
  */
 
 import { browser } from 'wxt/browser'
@@ -23,18 +20,6 @@ const STORAGE_KEY = 'githubApiToken'
 
 /** github.com login of the connected user, kept only to show "Connected as @…". */
 const LOGIN_KEY = 'githubLogin'
-
-/** The one host whose API the page cookie cannot authenticate. */
-const GITHUB_API_HOST = 'api.github.com'
-
-/** True when `url` targets github.com's REST API — the only place we send the token. */
-export function tokenTargetsGithubApi(url: string): boolean {
-  try {
-    return new URL(url).host === GITHUB_API_HOST
-  } catch {
-    return false
-  }
-}
 
 export async function getGithubToken(): Promise<string> {
   const result = await browser.storage.local.get(STORAGE_KEY)
