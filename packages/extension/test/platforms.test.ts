@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { gitlabPlatform } from '../src/platforms/gitlab'
 import { githubPlatform } from '../src/platforms/github'
-import { isBpmnPath, mrInfo, rawFileUrl } from '../src/platforms/gitlabMrUrls'
+import { mrInfo, rawFileUrl } from '../src/platforms/gitlabMrUrls'
+import { isBpmnPath } from '../src/kinds/detect'
 import {
   apiBase,
   normalizeDiffPath,

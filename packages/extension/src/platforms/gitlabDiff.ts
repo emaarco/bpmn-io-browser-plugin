@@ -4,11 +4,14 @@
  * per-file change info) loaded once from the GitLab REST API.
  */
 
-import type { DiffFileBlock, DiffPlatform } from '../diff/diffPlatform'
+import { createDiffPlatform } from '../diff/createDiffPlatform'
+import type { DiffFileBlock, DiffPanelSlot, DiffPlatform } from '../diff/diffPlatform'
 import { fetchText } from '../net/client'
 import { DIFF_PANEL_TAG } from '../inject/tags'
+import { isBpmnPath } from '../kinds/detect'
 import { gitlabSelectors } from './gitlab.selectors'
-import { isBpmnPath, loadMrData, mrInfo, rawFileUrl, type MrData, type MrInfo } from './gitlabMr'
+import { loadMrData, type MrData } from './gitlabMr'
+import { mrInfo, rawFileUrl } from './gitlabMrUrls'
 
 interface FileBox {
   path: string
@@ -17,30 +20,22 @@ interface FileBox {
 }
 
 export function gitlabDiffPlatform(): DiffPlatform {
-  let cached: { key: string; promise: Promise<MrData> } | null = null
-
-  const ensureData = (location: Location, info: MrInfo): Promise<MrData> => {
-    if (cached?.key === info.key) return cached.promise
-    const promise = loadMrData(location, info).catch((err) => {
-      if (cached?.key === info.key) cached = null // let the next run retry
-      throw err
-    })
-    cached = { key: info.key, promise }
-    return promise
-  }
-
-  return {
-    pageKey: (location) => mrInfo(location)?.key ?? null,
-    async collect(location, doc) {
-      const info = mrInfo(location)
-      if (!info) return []
-      const boxes = bpmnFileBoxes(doc)
-      if (!boxes.length) return []
-      const data = await ensureData(location, info)
-      return boxes.map((box) => toBlock(box, data))
-    },
-  }
+  return createDiffPlatform({
+    info: mrInfo,
+    scan: bpmnFileBoxes,
+    slotOf,
+    load: loadMrData,
+    toBlock: (_location, box, data) => toBlock(box, data),
+    errorHint: () =>
+      'Could not load the merge request metadata from the GitLab API. Check that you are signed in and can open this merge request.',
+  })
 }
+
+const slotOf = (box: FileBox): DiffPanelSlot => ({
+  anchor: box.content,
+  append: 'first',
+  fileRoot: box.root,
+})
 
 function toBlock(box: FileBox, data: MrData): DiffFileBlock {
   const change = data.changeByPath.get(box.path)

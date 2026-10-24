@@ -11,13 +11,12 @@
  * host dropped our node during a re-render — we re-sync.
  */
 
-import { createShadowRootUi } from 'wxt/utils/content-script-ui/shadow-root'
 import type { ContentScriptContext } from 'wxt/utils/content-script-context'
 import { fetchText } from '../net/client'
 import type { BlobPlatform } from '../platforms/types'
 import { detectKind } from '../kinds/registry'
-import { mountModelPanel, type ModelPanelHandle } from '../viewer/modelPanel'
-import { injectShadowStyles } from './shadowStyles'
+import { mountModelPanel } from '../viewer/modelPanel'
+import { mountShadowPanel, onHostPageChange } from './hostDomSync'
 import { HOST_TAG } from './tags'
 
 const MOUNT_RETRIES = 12
@@ -69,21 +68,14 @@ export function runBlobViewer(ctx: ContentScriptContext, platform: BlobPlatform)
         anchor.style.marginTop = previousMarginTop
       }
 
-      ui = await createShadowRootUi<ModelPanelHandle>(ctx, {
+      ui = await mountShadowPanel(ctx, {
         name: HOST_TAG,
-        position: 'inline',
         anchor,
         append: 'before',
-        onMount: (uiContainer, shadow) => {
-          injectShadowStyles(shadow, kind.css)
-          return mountModelPanel(uiContainer, {
-            kind,
-            loadXml: () => fetchText(rawUrl),
-          })
-        },
-        onRemove: (handle) => handle?.destroy(),
+        css: kind.css,
+        render: (container) =>
+          mountModelPanel(container, { kind, loadXml: () => fetchText(rawUrl) }),
       })
-      ui.mount()
 
       // Navigated away while mounting → this render is stale; drop it.
       if (path !== location.pathname) teardown()
@@ -127,22 +119,11 @@ export function runBlobViewer(ctx: ContentScriptContext, platform: BlobPlatform)
   // and re-render the code area on their own; a debounced re-check catches both,
   // re-syncing whenever our container is missing, shows the wrong file, or is
   // left over on a page without a diagram.
-  let scheduled = false
-  const recheck = () => {
-    if (scheduled) return
-    scheduled = true
-    setTimeout(() => {
-      scheduled = false
-      if (!mounting && isOutOfSync()) sync()
-    }, RECHECK_DEBOUNCE_MS)
-  }
-
-  ctx.addEventListener(window, 'wxt:locationchange', recheck)
-  const observer = new MutationObserver(recheck)
-  observer.observe(document.body, { childList: true, subtree: true })
+  onHostPageChange(ctx, RECHECK_DEBOUNCE_MS, () => {
+    if (!mounting && isOutOfSync()) sync()
+  })
 
   ctx.onInvalidated(() => {
-    observer.disconnect()
     stopRetry()
     teardown()
   })
