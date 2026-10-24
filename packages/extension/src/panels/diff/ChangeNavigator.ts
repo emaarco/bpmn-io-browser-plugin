@@ -1,0 +1,65 @@
+import type { DiagramDiff } from '@bpmn-io-browser-plugin/core'
+import type { DiffableViewer } from '../../kinds/DiagramKind'
+import { MARKER } from './markers'
+
+const FOCUS_ZOOM = 1.3
+
+export class ChangeNavigator {
+  private index = -1
+  private activeId: string | null = null
+
+  static forDiff(diff: DiagramDiff, viewers: (DiffableViewer | null)[]): ChangeNavigator {
+    const ids = [...new Set([...diff.added, ...diff.removed, ...diff.changed, ...diff.moved])]
+    return new ChangeNavigator(ids, viewers)
+  }
+
+  constructor(
+    readonly ids: readonly string[],
+    private readonly viewers: (DiffableViewer | null)[],
+  ) {}
+
+  get hasChanges(): boolean {
+    return this.ids.length > 0
+  }
+
+  next(): void {
+    this.go(1)
+  }
+
+  previous(): void {
+    this.go(-1)
+  }
+
+  showAll(): void {
+    this.clearActive()
+    this.index = -1
+    for (const viewer of this.viewers) viewer?.fit()
+  }
+
+  private go(direction: number): void {
+    if (!this.hasChanges) return
+    this.index = (this.index + direction + this.ids.length) % this.ids.length
+    this.focus(this.ids[this.index]!)
+  }
+
+  private focus(id: string): void {
+    this.clearActive()
+    this.activeId = id
+    for (const viewer of this.viewersShowing(id)) {
+      viewer.addMarker(id, MARKER.active)
+      viewer.focusElement(id, FOCUS_ZOOM)
+    }
+  }
+
+  private clearActive(): void {
+    if (!this.activeId) return
+    for (const viewer of this.viewersShowing(this.activeId)) {
+      viewer.removeMarker(this.activeId, MARKER.active)
+    }
+    this.activeId = null
+  }
+
+  private viewersShowing(id: string): DiffableViewer[] {
+    return this.viewers.filter((viewer): viewer is DiffableViewer => !!viewer?.hasElement(id))
+  }
+}

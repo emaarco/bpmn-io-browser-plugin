@@ -35,8 +35,8 @@ Building from source is covered in the repo [README](../../README.md#install).
   (self-hosted GitLab/GitHub).
 - **`entrypoints/options` + `viewer`** — the options page and a standalone
   drop-in viewer (nothing leaves your machine).
-- **`src/`** — platform adapters (`platforms/`), diagram kinds (`kinds/`),
-  themed viewer, and the diff overlay/markers.
+- **`src/`** — git hosts (`git-hosts/`), diagram kinds (`kinds/`), page
+  controllers (`page/`) and the rendered panels (`panels/`).
 
 ## Develop
 

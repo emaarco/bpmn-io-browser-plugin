@@ -1,14 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { computeDiff, diffBpmn, isEmptyDiff, parseBpmn } from '../../src/index'
+import { BpmnModelDiffer, BpmnParser, ModelComparator, isEmptyDiff } from '../../src/index'
 import { readFixture } from '../fixtures'
 
 const base = readFixture('base.bpmn')
 
+const parser = new BpmnParser()
+const comparator = new ModelComparator()
+
 async function diff(oldXml: string, newXml: string) {
-  return computeDiff(await parseBpmn(oldXml), await parseBpmn(newXml))
+  return comparator.compare(await parser.parse(oldXml), await parser.parse(newXml))
 }
 
-describe('computeDiff', () => {
+describe('ModelComparator', () => {
   it('reports no differences for an unchanged model', async () => {
     const result = await diff(base, base)
     expect(isEmptyDiff(result)).toBe(true)
@@ -127,9 +130,9 @@ describe('computeDiff', () => {
   })
 })
 
-describe('diffBpmn', () => {
+describe('BpmnModelDiffer', () => {
   it('parses both documents and diffs them', async () => {
-    const result = await diffBpmn(base, readFixture('added-task.bpmn'))
+    const result = await new BpmnModelDiffer().diff(base, readFixture('added-task.bpmn'))
     expect(result.added).toEqual(['Task_2'])
   })
 })

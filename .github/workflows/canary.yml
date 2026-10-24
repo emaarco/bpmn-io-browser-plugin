@@ -3,7 +3,7 @@ name: Canary (GitHub DOM drift)
 # Drives the REAL github.com with the extension loaded and checks that our
 # content scripts still inject the diagram. If GitHub changes its DOM so our
 # selectors no longer match, this goes red — an early warning that the fixtures +
-# `src/platforms/github.selectors.ts` need updating.
+# `src/git-hosts/github/githubSelectors.ts` need updating.
 #
 # Deliberately SEPARATE from CI: it runs on a schedule (not on PRs), so real
 # GitHub's occasional flakiness / A-B-tested DOM can never block a merge. It only

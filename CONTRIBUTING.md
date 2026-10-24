@@ -82,7 +82,7 @@ The fixture suite tests _our_ logic against a copy of GitHub's DOM, so it can't
 notice GitHub changing its real markup. A separate **canary** covers that: it
 loads the extension against the real `dev:example` pages and checks the diagram
 still injects. Every GitHub selector lives in one file per host
-(`src/platforms/github.selectors.ts`, `gitlab.selectors.ts`), so a drift fix is a
+(`src/git-hosts/github/githubSelectors.ts`, `gitlab/gitlabSelectors.ts`), so a drift fix is a
 one-file change.
 
 ```bash
@@ -164,14 +164,36 @@ npm run format     # prettier
   (`feat:`, `fix:`, `refactor:`, `chore:`, `docs:`, …). The PR title is checked in
   CI and drives the automated release notes (release-please).
 - **Architecture**: keep `packages/core` free of DOM and bpmn-js — it's the pure,
-  testable diff core. The layering is enforced by dependency-cruiser.
+  testable diff core. The layering is enforced by dependency-cruiser in both
+  packages (`npm run lint:deps`).
+- **Classes first**: behaviour lives in classes; pure helpers go to a `utils/`
+  folder. ESLint rejects top-level functions anywhere else.
 - **Dependencies** are pinned to exact versions.
 
 ## Where things live
 
 - `packages/core/src/domain` — the diff algorithm (pure).
 - `packages/core/src/adapter` — BPMN XML → parsed model (bpmn-moddle).
-- `packages/extension/entrypoints` — content scripts, background, popup, options.
-- `packages/extension/src/platforms` — GitLab/GitHub DOM & API adapters.
-- `packages/extension/src/inject` — orchestration (shadow-root mounting, SPA nav).
-- `packages/extension/src/viewer` / `src/diff` — the rendered UIs.
+- `packages/extension/entrypoints` — one-line WXT entrypoints that wire the classes below.
+- `packages/extension/src/git-hosts` — one folder per git host behind the `GitHost`
+  interface (routes, REST API, DOM scanner, blob page, diff pages), plus the `HostRegistry`.
+- `packages/extension/src/kinds` — one folder per diagram kind behind the `DiagramKind`
+  interface (viewer, CSS, optional differ); `kindCatalog.ts` is the light, import-safe list.
+- `packages/extension/src/page` — content-script controllers (blob viewer, diff, view router).
+- `packages/extension/src/panels` — the rendered UIs (model panel, diff panel).
+- `packages/extension/src/diff` — the `DiffSource` seam and its caching.
+- `packages/extension/src/host-access`, `src/background`, `src/options` — self-hosted
+  instances, the background worker and the options page.
+
+### Adding a git host
+
+Create `src/git-hosts/<host>/` with a class implementing `GitHost`, register it in
+`src/git-hosts/hosts.ts`, and add one entrypoint per view script it declares
+(`<host>-blob.content.ts`, …). Add its API origin to `host_permissions` in
+`wxt.config.ts` when it is cross-origin.
+
+### Adding a diagram kind
+
+Add a descriptor to `src/kinds/kindCatalog.ts` and a class implementing
+`DiagramKind` in `src/kinds/<kind>/`, then register it in `allKinds.ts` (and in
+`diffableKinds.ts` once it has a differ). The registry tests check the three stay in sync.

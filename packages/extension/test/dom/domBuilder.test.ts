@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { h } from '../../src/dom'
+import { h } from '../../src/utils/dom'
 
 /** The injected UIs are built entirely through `h`; a regression here shows up
  * everywhere at once, so cover its prop handling in isolation. */

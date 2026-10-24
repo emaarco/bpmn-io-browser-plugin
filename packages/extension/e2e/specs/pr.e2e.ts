@@ -7,7 +7,6 @@ import { browser, $, $$, expect } from '@wdio/globals'
  * above the file's code box. Runs identically on Chrome, Edge and Firefox.
  */
 describe('GitHub PR diff (content script)', () => {
-  
   it('mounts a diff panel with a rendered diagram for a changed .bpmn file', async () => {
     await browser.url('/octo/flows/pull/1/files')
 

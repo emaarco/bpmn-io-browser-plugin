@@ -1,0 +1,75 @@
+import { browser } from 'wxt/browser'
+import addPermissionToggle from 'webext-permission-toggle'
+import type { HostRegistry } from '../git-hosts/HostRegistry'
+import { hostRegistry } from '../git-hosts/hosts'
+import { HostAccess } from '../host-access/HostAccess'
+import type { BackgroundRequest } from '../messaging/messages'
+import { originToPattern } from '../utils/origin'
+import { FetchProxy } from './FetchProxy'
+import { ViewScriptInjector } from './ViewScriptInjector'
+
+const ENABLE_ON_DOMAIN_TITLE = 'Enable bpmn-io-browser-plugin on this domain'
+const KEEP_CHANNEL_OPEN_FOR_ASYNC_RESPONSE = true
+
+interface Tab {
+  id?: number
+  url?: string
+}
+
+export class BackgroundWorker {
+  static create(): BackgroundWorker {
+    return new BackgroundWorker(
+      HostAccess.forHosts(hostRegistry),
+      hostRegistry,
+      new FetchProxy(hostRegistry.authPolicies()),
+      new ViewScriptInjector(hostRegistry.allViewScripts()),
+    )
+  }
+
+  constructor(
+    private readonly access: HostAccess,
+    private readonly hosts: HostRegistry,
+    private readonly fetchProxy: FetchProxy,
+    private readonly injector: ViewScriptInjector,
+  ) {}
+
+  start(): void {
+    this.access
+      .restoreOnStartup()
+      .catch((err) => console.error('[bpmn-io-browser-plugin] host registration failed', err))
+    addPermissionToggle({ title: ENABLE_ON_DOMAIN_TITLE })
+    browser.action?.onClicked.addListener((tab) => void this.onToolbarClick(tab))
+    browser.permissions.onAdded.addListener((perms) => void this.access.grant(perms.origins ?? []))
+    browser.permissions.onRemoved.addListener(
+      (perms) => void this.access.revoke(perms.origins ?? []),
+    )
+    browser.runtime.onMessage.addListener((message: BackgroundRequest, sender, sendResponse) =>
+      this.handle(message, sender.tab?.id, sendResponse),
+    )
+  }
+
+  private handle(
+    message: BackgroundRequest,
+    tabId: number | undefined,
+    sendResponse: (response: unknown) => void,
+  ): boolean {
+    if (message?.type === 'fetchText') {
+      this.fetchProxy.fetchText(message.url).then(sendResponse)
+      return KEEP_CHANNEL_OPEN_FOR_ASYNC_RESPONSE
+    }
+    if (message?.type === 'injectViewScript') {
+      this.injector.inject(tabId, message.script).then(sendResponse)
+      return KEEP_CHANNEL_OPEN_FOR_ASYNC_RESPONSE
+    }
+    return false
+  }
+
+  private async onToolbarClick(tab: Tab): Promise<void> {
+    if (!tab.url || !this.hosts.isSupportedUrl(tab.url)) {
+      await browser.runtime.openOptionsPage().catch(() => undefined)
+      return
+    }
+    const origins = [originToPattern(new URL(tab.url).origin)]
+    await browser.permissions.request({ origins }).catch(() => false)
+  }
+}

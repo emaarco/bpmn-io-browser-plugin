@@ -1,5 +1,5 @@
 import { browser, $, $$, expect } from '@wdio/globals'
-import { HOST_TAG } from '../../src/inject/tags'
+import { HOST_TAG } from '../../src/injectedElements'
 
 const REPO = 'https://github.com/emaarco/bpmn-io-browser-plugin'
 const FIXTURES_DIRECTORY = `${REPO}/tree/main/packages/extension/e2e/fixtures`

@@ -1,11 +1,13 @@
 import { defineContentScript } from 'wxt/utils/define-content-script'
-import { runViewRouter } from '../src/inject/viewRouter'
-import { withE2eMatches } from '../src/hosts/e2eMatches'
+import { backgroundClient, hostRegistry } from '../src/git-hosts/hosts'
+import { HostPage } from '../src/page/HostPage'
+import { ViewRouter } from '../src/page/ViewRouter'
+import { withE2eMatches } from '../src/utils/e2eMatches'
 
 export default defineContentScript({
-  matches: withE2eMatches(['https://github.com/*', 'https://gitlab.com/*'], ['http://localhost/*']),
+  matches: withE2eMatches(hostRegistry.publicMatchPatterns(), ['http://localhost/*']),
   runAt: 'document_idle',
   main(ctx) {
-    runViewRouter(ctx)
+    new ViewRouter(new HostPage(ctx), hostRegistry, backgroundClient).start()
   },
 })

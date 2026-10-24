@@ -16,11 +16,12 @@ the [extension](../extension)'s inline before/after diff from one engine.
 
 ## What's inside
 
-- **`adapter/parseBpmn`** — turns BPMN XML into a plain model via `bpmn-moddle`.
-- **`domain/model` + `signature`** — a stable, layout-independent signature per
+- **`adapter/BpmnParser`** — turns BPMN XML into a plain model via `bpmn-moddle`.
+- **`domain/SemanticSignature`** — a stable, layout-independent signature per
   element, so noise (formatting, order) is ignored and real edits stand out.
-- **`domain/diff`** — classifies every element as **added / removed / changed /
-  moved**, including `zeebe:*` properties.
+- **`domain/ModelComparator`** — classifies every element as **added / removed /
+  changed / moved**, including `zeebe:*` properties.
+- **`BpmnModelDiffer`** — parses two BPMN documents and compares them in one call.
 
 ## Usage
 

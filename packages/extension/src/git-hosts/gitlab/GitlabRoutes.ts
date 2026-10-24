@@ -1,0 +1,31 @@
+export interface MergeRequestRef {
+  projectPath: string
+  iid: string
+  key: string
+}
+
+export const GITLAB_PUBLIC_ORIGIN = 'https://gitlab.com'
+export const GITLAB_ROUTE_MARKER = '/-/'
+
+const MERGE_REQUEST_PATH = /^\/(.+?)\/-\/merge_requests\/(\d+)/
+
+export class GitlabRoutes {
+  mergeRequest(location: Pick<Location, 'pathname'>): MergeRequestRef | null {
+    const match = location.pathname.match(MERGE_REQUEST_PATH)
+    if (!match) return null
+    const [, projectPath, iid] = match
+    return { projectPath: projectPath!, iid: iid!, key: `${projectPath}!${iid}` }
+  }
+
+  mergeRequestApi(origin: string, ref: MergeRequestRef): string {
+    return `${this.projectApi(origin, ref.projectPath)}/merge_requests/${ref.iid}`
+  }
+
+  rawFileUrl(origin: string, projectPath: string, path: string, ref: string): string {
+    return `${this.projectApi(origin, projectPath)}/repository/files/${encodeURIComponent(path)}/raw?ref=${encodeURIComponent(ref)}`
+  }
+
+  private projectApi(origin: string, projectPath: string): string {
+    return `${origin}/api/v4/projects/${encodeURIComponent(projectPath)}`
+  }
+}

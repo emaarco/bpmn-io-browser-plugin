@@ -1,10 +1,10 @@
 import { browser, $, expect } from '@wdio/globals'
-import { HOST_TAG } from '../../src/inject/tags'
+import { HOST_TAG } from '../../src/injectedElements'
 
 /**
  * DRIFT CANARY (run with `WDIO_LIVE=1`) — drives the REAL github.com, not the
  * local fixtures. If GitHub changes its blob DOM so our selectors no longer
- * match, this fails: the early warning that the fixtures + `github.selectors.ts`
+ * match, this fails: the early warning that the fixtures + `githubSelectors.ts`
  * need updating. Scheduled + non-blocking (see `.github/workflows/canary.yml`) —
  * never part of the PR gate, because real GitHub is A/B-tested and occasionally
  * flaky (hence the retries in `wdio.conf.ts`).
