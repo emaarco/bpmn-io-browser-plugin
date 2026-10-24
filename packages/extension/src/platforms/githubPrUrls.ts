@@ -36,11 +36,6 @@ export function rawFileUrl(
   return `${location.origin}/${repoFullName}/raw/${encodeURIComponent(ref)}/${encPath}`
 }
 
-/** True for a path that names a `.bpmn` file. */
-export function isBpmnPath(path: string | undefined | null): boolean {
-  return !!path && /\.bpmn$/i.test(path)
-}
-
 /**
  * Clean a path read from the React diff header: strip the invisible bidi marks
  * GitHub wraps it in (they break equality against the REST API path), and for a

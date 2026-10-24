@@ -12,6 +12,11 @@ const EXTENSION_TO_KIND: Readonly<Record<string, KindId>> = {
   dmn: 'dmn',
 }
 
+/** True for a path that names a `.bpmn` file. */
+export function isBpmnPath(path: string | undefined | null): boolean {
+  return !!path && detectKindId(path) === 'bpmn'
+}
+
 /** The diagram-kind id that renders this path, matched by file extension. */
 export function detectKindId(pathname: string): KindId | null {
   const ext = /\.([^./]+)$/.exec(pathname)?.[1]?.toLowerCase()

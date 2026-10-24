@@ -12,6 +12,7 @@
  */
 
 import { fetchJson } from '../net/client'
+import { fetchAllPages } from '../net/fetchAllPages'
 import type { GithubDiffData, GithubDiffFile } from './githubDiffDom'
 import { apiBase, type PrInfo } from './githubPrUrls'
 
@@ -24,23 +25,15 @@ interface CompareResponse {
   merge_base_commit: { sha: string }
 }
 
-const MAX_FILE_PAGES = 20
-const PER_PAGE = 100
-
 export async function loadPrData(location: Location, info: PrInfo): Promise<GithubDiffData> {
   const base = apiBase(location)
   const repo = `${info.owner}/${info.repo}`
 
   const pr = await fetchJson<PrResponse>(`${base}/repos/${repo}/pulls/${info.number}`)
 
-  const files: GithubDiffFile[] = []
-  for (let page = 1; page <= MAX_FILE_PAGES; page++) {
-    const batch = await fetchJson<GithubDiffFile[]>(
-      `${base}/repos/${repo}/pulls/${info.number}/files?per_page=${PER_PAGE}&page=${page}`,
-    )
-    files.push(...batch)
-    if (batch.length < PER_PAGE) break
-  }
+  const files = await fetchAllPages<GithubDiffFile>(
+    `${base}/repos/${repo}/pulls/${info.number}/files`,
+  )
 
   const fileByPath = new Map<string, GithubDiffFile>()
   for (const file of files) {

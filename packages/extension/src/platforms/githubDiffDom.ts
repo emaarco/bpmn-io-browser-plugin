@@ -11,7 +11,8 @@ import type { DiffFileBlock } from '../diff/diffPlatform'
 import { fetchText } from '../net/client'
 import { isRendered } from '../util/isRendered'
 import { githubSelectors } from './github.selectors'
-import { isBpmnPath, normalizeDiffPath, rawFileUrl } from './githubPrUrls'
+import { isBpmnPath } from '../kinds/detect'
+import { normalizeDiffPath, rawFileUrl } from './githubPrUrls'
 
 /** Per-file diff metadata, sourced once per page from a REST endpoint. */
 export interface GithubDiffFile {

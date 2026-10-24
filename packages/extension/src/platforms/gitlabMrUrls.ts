@@ -19,8 +19,3 @@ export function mrInfo(location: Pick<Location, 'pathname'>): MrInfo | null {
 export function rawFileUrl(origin: string, pid: string, path: string, ref: string): string {
   return `${origin}/api/v4/projects/${pid}/repository/files/${encodeURIComponent(path)}/raw?ref=${encodeURIComponent(ref)}`
 }
-
-/** True for a path that names a `.bpmn` file. */
-export function isBpmnPath(path: string | undefined | null): boolean {
-  return !!path && /\.bpmn$/i.test(path)
-}
