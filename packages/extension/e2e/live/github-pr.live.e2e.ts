@@ -1,10 +1,10 @@
 import { browser, $, expect } from '@wdio/globals'
-import { DIFF_PANEL_TAG } from '../../src/inject/tags'
+import { DIFF_PANEL_TAG } from '../../src/injectedElements'
 
 /**
  * DRIFT CANARY (run with `WDIO_LIVE=1`) — drives the REAL github.com PR "Files
  * changed" view. If GitHub changes its diff DOM (file boxes, headers, code
- * tables) so `github.selectors.ts` no longer matches, this fails: the early
+ * tables) so `githubSelectors.ts` no longer matches, this fails: the early
  * warning to update the adapter + fixtures. Scheduled + non-blocking.
  *
  * Target: the repo's frozen demo PR #12 (a permanently-closed PR that changes a

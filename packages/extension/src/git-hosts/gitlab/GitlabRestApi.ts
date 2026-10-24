@@ -1,0 +1,56 @@
+import type { HttpClient } from '../../messaging/HttpClient'
+import { fetchAllPages } from '../../utils/fetchAllPages'
+import type { GitlabRoutes, MergeRequestRef } from './GitlabRoutes'
+
+export interface MergeRequestChange {
+  new_path?: string
+  old_path?: string
+  new_file?: boolean
+  deleted_file?: boolean
+  renamed_file?: boolean
+}
+
+export interface MergeRequestData {
+  origin: string
+  projectPath: string
+  baseSha: string
+  headSha: string
+  changeByPath: Map<string, MergeRequestChange>
+}
+
+interface MergeRequestResponse {
+  diff_refs: { base_sha: string; head_sha: string }
+}
+
+export class GitlabRestApi {
+  constructor(
+    private readonly http: HttpClient,
+    private readonly routes: GitlabRoutes,
+  ) {}
+
+  async loadMergeRequest(location: Location, ref: MergeRequestRef): Promise<MergeRequestData> {
+    const mergeRequestApi = this.routes.mergeRequestApi(location.origin, ref)
+    const mergeRequest = await this.http.fetchJson<MergeRequestResponse>(mergeRequestApi)
+    const changes = await fetchAllPages<MergeRequestChange>(this.http, `${mergeRequestApi}/diffs`)
+    return {
+      origin: location.origin,
+      projectPath: ref.projectPath,
+      baseSha: mergeRequest.diff_refs.base_sha,
+      headSha: mergeRequest.diff_refs.head_sha,
+      changeByPath: this.indexByPath(changes),
+    }
+  }
+
+  rawFile(data: MergeRequestData, path: string, ref: string): Promise<string> {
+    return this.http.fetchText(this.routes.rawFileUrl(data.origin, data.projectPath, path, ref))
+  }
+
+  private indexByPath(changes: MergeRequestChange[]): Map<string, MergeRequestChange> {
+    const changeByPath = new Map<string, MergeRequestChange>()
+    for (const change of changes) {
+      if (change.new_path) changeByPath.set(change.new_path, change)
+      if (change.old_path) changeByPath.set(change.old_path, change)
+    }
+    return changeByPath
+  }
+}

@@ -1,0 +1,20 @@
+export const gitlabSelectors = {
+  blob: {
+    content: [
+      '[data-testid="blob-viewer-file-content"]',
+      '.blob-viewer',
+      '.blob-content-holder',
+      'main .file-content',
+    ],
+    insertClimb: '.file-holder',
+  },
+  diff: {
+    fileRoot: '.diff-file, [data-testid="file-holder"]',
+    pathAttr: '[data-path]',
+    titleEl: '.file-title-name, [data-testid="file-title"]',
+    contentExplicit: '.diff-content, [data-testid="diff-content"]',
+    titleForSibling:
+      '.file-title, .js-file-title, [data-testid="file-title"], .file-title-flex-parent',
+    collapseContent: '.diff-content, [data-testid="content-area"], [data-testid="diff-content"]',
+  },
+}

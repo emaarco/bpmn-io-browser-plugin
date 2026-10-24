@@ -24,6 +24,7 @@ export default tseslint.config(
       // TypeScript resolves identifiers itself; no-undef only causes false
       // positives on ambient/DOM/browser-extension globals here.
       'no-undef': 'off',
+      'max-classes-per-file': ['error', 1],
       // The bpmn-js / diagram-js / moddle APIs are loosely typed; we lean on
       // structural interfaces and `any` at the integration boundary.
       '@typescript-eslint/no-explicit-any': 'off',
@@ -31,6 +32,26 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+    },
+  },
+  {
+    files: ['packages/*/src/**/*.ts', 'packages/extension/entrypoints/**/*.ts'],
+    ignores: ['**/utils/**', '**/*.d.ts'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        ...[
+          'Program > FunctionDeclaration',
+          'Program > ExportNamedDeclaration > FunctionDeclaration',
+          'Program > ExportDefaultDeclaration > FunctionDeclaration',
+          'Program > VariableDeclaration > VariableDeclarator > :matches(ArrowFunctionExpression, FunctionExpression)',
+          'Program > ExportNamedDeclaration > VariableDeclaration > VariableDeclarator > :matches(ArrowFunctionExpression, FunctionExpression)',
+        ].map((selector) => ({
+          selector,
+          message:
+            'Top-level functions belong in a class, or in a utils/ module when they are pure helpers.',
+        })),
       ],
     },
   },

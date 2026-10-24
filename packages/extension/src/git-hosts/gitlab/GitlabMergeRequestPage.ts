@@ -1,0 +1,44 @@
+import type { ChangedFile, DiffLoaders, DiffPage } from '../../diff/DiffSource'
+import type { GitlabDiffScanner } from './GitlabDiffScanner'
+import type { GitlabRestApi, MergeRequestData } from './GitlabRestApi'
+import type { GitlabRoutes, MergeRequestRef } from './GitlabRoutes'
+
+const METADATA_ERROR_HINT =
+  'Could not load the merge request metadata from the GitLab API. Check that you are signed in and can open this merge request.'
+
+export class GitlabMergeRequestPage implements DiffPage<MergeRequestRef, MergeRequestData> {
+  constructor(
+    private readonly routes: GitlabRoutes,
+    private readonly api: GitlabRestApi,
+    private readonly scanner: GitlabDiffScanner,
+  ) {}
+
+  identify(location: Location): MergeRequestRef | null {
+    return this.routes.mergeRequest(location)
+  }
+
+  scan(doc: Document): ChangedFile[] {
+    return this.scanner.scan(doc)
+  }
+
+  load(location: Location, page: MergeRequestRef): Promise<MergeRequestData> {
+    return this.api.loadMergeRequest(location, page)
+  }
+
+  loaders(_location: Location, file: ChangedFile, data: MergeRequestData): DiffLoaders {
+    const change = data.changeByPath.get(file.path)
+    const oldPath = change?.old_path || file.path
+    return {
+      loadOld: () =>
+        change?.new_file ? Promise.resolve(null) : this.api.rawFile(data, oldPath, data.baseSha),
+      loadNew: () =>
+        change?.deleted_file
+          ? Promise.resolve(null)
+          : this.api.rawFile(data, file.path, data.headSha),
+    }
+  }
+
+  errorHint(): string {
+    return METADATA_ERROR_HINT
+  }
+}

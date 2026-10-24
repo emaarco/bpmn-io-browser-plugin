@@ -1,11 +1,12 @@
 import { defineContentScript } from 'wxt/utils/define-content-script'
-import { runDiff } from '../src/inject/diffRunner'
-import { githubDiffPlatform } from '../src/platforms/githubDiff'
+import { githubHost } from '../src/git-hosts/hosts'
+import { HostPage } from '../src/page/HostPage'
+import { DiffController } from '../src/page/DiffController'
 
 export default defineContentScript({
   registration: 'runtime',
   cssInjectionMode: 'manual',
   main(ctx) {
-    runDiff(ctx, githubDiffPlatform())
+    new DiffController(new HostPage(ctx), githubHost.pullRequestDiff).start()
   },
 })

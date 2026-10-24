@@ -1,0 +1,97 @@
+import { browser } from 'wxt/browser'
+import { originToPattern, patternToOrigin } from '../utils/origin'
+import { SettingsStore } from '../settings/SettingsStore'
+import { ScriptRegistrar } from './ScriptRegistrar'
+import { SelfHostedHostStore, type SelfHostedHost } from './SelfHostedHostStore'
+
+interface Tab {
+  id?: number
+  url?: string
+}
+
+export interface BrowserAccessApi {
+  permissions: { contains(permissions: { origins: string[] }): Promise<boolean> }
+  tabs: {
+    query(filter: { url: string }): Promise<Tab[]>
+    reload(tabId: number): Promise<void>
+  }
+}
+
+export interface HostCatalog {
+  isSupportedUrl(url: string): boolean
+  allViewScripts(): string[]
+}
+
+export class HostAccess {
+  static forHosts(hosts: HostCatalog): HostAccess {
+    return new HostAccess(
+      new SelfHostedHostStore(new SettingsStore()),
+      new ScriptRegistrar(hosts.allViewScripts()),
+      hosts,
+    )
+  }
+
+  constructor(
+    private readonly store: SelfHostedHostStore,
+    private readonly registrar: ScriptRegistrar,
+    private readonly hosts: Pick<HostCatalog, 'isSupportedUrl'>,
+    private readonly browserApi: () => BrowserAccessApi = () => browser as BrowserAccessApi,
+  ) {}
+
+  list(): Promise<SelfHostedHost[]> {
+    return this.store.list()
+  }
+
+  async label(origin: string, type: string): Promise<void> {
+    await this.store.save({ origin, type })
+  }
+
+  async grant(patterns: string[]): Promise<void> {
+    for (const origin of this.originsOf(patterns)) {
+      await this.store.save({ origin })
+      try {
+        await this.registrar.register(origin)
+      } catch (err) {
+        console.error('[bpmn-io-browser-plugin] register failed for', origin, err)
+        continue
+      }
+      await this.reloadSupportedTabs(origin)
+    }
+  }
+
+  async revoke(patterns: string[]): Promise<void> {
+    for (const origin of this.originsOf(patterns)) {
+      await this.registrar.unregister(origin).catch(() => undefined)
+      await this.store.remove(origin)
+    }
+  }
+
+  async restoreOnStartup(): Promise<void> {
+    for (const host of await this.store.list()) {
+      const origins = [originToPattern(host.origin)]
+      if (!(await this.browserApi().permissions.contains({ origins }))) continue
+      try {
+        await this.registrar.register(host.origin)
+      } catch (err) {
+        console.error(`[bpmn-io-browser-plugin] could not register ${host.origin}`, err)
+      }
+    }
+  }
+
+  private originsOf(patterns: string[]): string[] {
+    return patterns.flatMap((pattern) => patternToOrigin(pattern) ?? [])
+  }
+
+  private async reloadSupportedTabs(origin: string): Promise<void> {
+    const tabs = await this.browserApi()
+      .tabs.query({ url: originToPattern(origin) })
+      .catch(() => [])
+    for (const tab of tabs) {
+      if (tab.id != null && tab.url && this.hosts.isSupportedUrl(tab.url)) {
+        this.browserApi()
+          .tabs.reload(tab.id)
+          .catch(() => undefined)
+      }
+    }
+  }
+}

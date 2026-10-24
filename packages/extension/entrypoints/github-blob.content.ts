@@ -1,11 +1,12 @@
 import { defineContentScript } from 'wxt/utils/define-content-script'
-import { githubPlatform } from '../src/platforms/github'
-import { runBlobViewer } from '../src/inject/blobViewer'
+import { githubHost } from '../src/git-hosts/hosts'
+import { HostPage } from '../src/page/HostPage'
+import { BlobViewerController } from '../src/page/BlobViewerController'
 
 export default defineContentScript({
   registration: 'runtime',
   cssInjectionMode: 'manual',
   main(ctx) {
-    runBlobViewer(ctx, githubPlatform)
+    new BlobViewerController(new HostPage(ctx), githubHost.blobPage).start()
   },
 })
